@@ -50,7 +50,7 @@ public class KaizoDynamitePatch
                     AccessTools.Field(typeof(BuildingEntity), nameof(BuildingEntity.health))))
             .ThrowIfInvalid($"{nameof(KaizoDynamitePatch)}.{nameof(ExtraDamageTranspiler)} could not find a match!")
             .Insert(
-                new CodeInstruction(OpCodes.Ldloc_3,
+                new CodeInstruction(OpCodes.Call,
                     AccessTools.Method(typeof(KaizoDynamitePatch), nameof(GetExtraDamage))),
                 new CodeInstruction(OpCodes.Sub))
             .InstructionEnumeration();
