@@ -40,11 +40,11 @@ public static class KaizoAutoTranslate
     {
         ChatTranslate.SendPlayerMessageRestored(plr, dist switch
         {
-            < 22 => await translate.TranslateAsync(message, "ZH") ?? TextScramble(message, 1f),
-            < 42 => await translate.TranslateAsync(message, "FI") ?? TextScramble(message, 0.5f),
-            < 62 => await translate.TranslateAsync(message, "CS") ?? TextScramble(message, 0.3f),
-            < 82 => await translate.TranslateAsync(message, "NL") ?? TextScramble(message, 0.2f),
-            < 102 => await translate.TranslateAsync(message, "PT") ?? TextScramble(message, 0.1f),
+            < 22 => await translate.TranslateAsync(message, AutoTranslate.Language.Chinese) ?? TextScramble(message, 1f),
+            < 42 => await translate.TranslateAsync(message, AutoTranslate.Language.Finnish) ?? TextScramble(message, 0.5f),
+            < 62 => await translate.TranslateAsync(message, AutoTranslate.Language.Czech) ?? TextScramble(message, 0.3f),
+            < 82 => await translate.TranslateAsync(message, AutoTranslate.Language.Dutch) ?? TextScramble(message, 0.2f),
+            < 102 => await translate.TranslateAsync(message, AutoTranslate.Language.Portuguese) ?? TextScramble(message, 0.1f),
             _ => null
         });
     }

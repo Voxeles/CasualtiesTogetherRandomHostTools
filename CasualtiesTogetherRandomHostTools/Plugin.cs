@@ -2,6 +2,7 @@
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using KrokoshaCasualtiesMP;
 
 namespace CasualtiesTogetherRandomHostTools;
 
@@ -11,7 +12,7 @@ public class Plugin : BaseUnityPlugin
 {
 	public const string ModGUID = "cump.random.host.tools";
 	public const string ModName = "CasualtiesTogetherRandomHostTools";
-	public const string ModVersion = "0.0.1";
+	public const string ModVersion = "0.0.2";
 
 	internal new static ManualLogSource Logger;
 	private readonly Harmony _harmony = new(ModGUID);
@@ -35,6 +36,12 @@ public class Plugin : BaseUnityPlugin
 	{
 		_harmony?.UnpatchSelf();
 		Instance = null;
+	}
+
+	internal static void PrintError(string message)
+	{
+		Con.con.LogToConsole($"<color=red>{ModName}: ERROR: {message}</color>");
+		Logger.LogError($"ERROR: {message}");
 	}
 }
 

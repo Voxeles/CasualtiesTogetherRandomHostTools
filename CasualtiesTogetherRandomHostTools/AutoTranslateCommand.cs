@@ -29,24 +29,20 @@ public static class AutoTranslateCommand
                 case "enabled":
                     throw new Exception("Bad value - expected 'true' or 'false'");
                 
-                case "deeplUrl" when args.Length < 3:
-                    Con.con.LogToConsole($"Auto translate DeepL Url: {AutoTranslate.Instance.ConfigAutoTranslateUrl.Value}");
+                case "backend" when args.Length < 3:
+                    Con.con.LogToConsole($"Auto translate backend: {AutoTranslate.Instance.ConfigAutoTranslateBackend.Value}");
                     break;
-                case "deeplUrl":
-                    AutoTranslate.Instance.ConfigAutoTranslateUrl.Value = args[2];
-                    Con.con.LogToConsole($"Auto translate set DeepL Url: {args[2]}!");
+                case "backend":
+                    AutoTranslate.Instance.ConfigAutoTranslateBackend.Value = args[2];
+                    Con.con.LogToConsole($"Auto translate set backend: {args[2]}!");
                     break;
                 
-                case "deeplKey" when args.Length < 3:
-                    Con.con.LogToConsole($"Auto translate DeepL Key: {AutoTranslate.Instance.ConfigAutoTranslateKey.Value}");
+                case "authHeader" when args.Length < 3:
+                    Con.con.LogToConsole($"Auto translate auth header: {AutoTranslate.Instance.ConfigAutoTranslateAuthHeader.Value}");
                     break;
-                case "deeplKey" when args[2].Length < 2:
-                    AutoTranslate.Instance.ConfigAutoTranslateKey.Value = "";
-                    Con.con.LogToConsole($"The key \"{args[2]}\" is not valid. Cleared key.");
-                    break;
-                case "deeplKey":
-                    AutoTranslate.Instance.ConfigAutoTranslateKey.Value = args[2];
-                    Con.con.LogToConsole($"Auto translate set DeepL key: {args[2]}!");
+                case "authHeader":
+                    AutoTranslate.Instance.ConfigAutoTranslateAuthHeader.Value = args[2];
+                    Con.con.LogToConsole($"Auto translate set auth header: {args[2]}!");
                     break;
                 
                 case "targetLang" when args.Length < 3:
@@ -76,7 +72,7 @@ public static class AutoTranslateCommand
             }
             
         }, new Dictionary<int, List<string>> {
-            {0, ["enabled", "deeplUrl", "deeplKey", "targetLang", "forceDisableWhenKaizo"]}
+            {0, ["enabled", "backend", "authHeader", "targetLang", "forceDisableWhenKaizo"]}
         }, [
             ("setting", "auto translation setting"), 
             ("value", "new value, leave blank to get current value")

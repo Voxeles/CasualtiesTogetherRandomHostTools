@@ -16,7 +16,7 @@ Adds various commands for Hosts to use
 
 2. `AutoTranslate`
 - Automatically translates chat
-- Requires a DeepL API key
+- Supports Google translate and the DeepL API
 
 3. `PingSalads`
 - Shows you the location and distance of elder thornbacks
