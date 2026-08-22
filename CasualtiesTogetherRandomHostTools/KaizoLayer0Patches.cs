@@ -15,7 +15,7 @@ internal static class KaizoLayer0Patches
         [HarmonyPriority(Priority.VeryLow)]
         private static bool Prefix(WorldGeneration __instance, ref IEnumerator __result)
         {
-            if (!Plugin.IsKaizoEnabled)
+            if (!Plugin.IsKaizoEnabled || __instance.biomeDepth != 0)
                 return true;
             __result = WorldGenerateStructuresPatched(__instance, __result);
             return false;
