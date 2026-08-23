@@ -12,25 +12,22 @@ internal static class KaizoLayer0Patches
     [HarmonyPatch(typeof(WorldGeneration), nameof(WorldGeneration.WorldGenerateStructures))]
     private static class CorruptWorldPatch
     {
-        [HarmonyPriority(Priority.VeryLow)]
-        private static bool Prefix(WorldGeneration __instance, ref IEnumerator __result)
+        private static void Postfix(WorldGeneration __instance, ref IEnumerator __result)
         {
             if (!Plugin.IsKaizoEnabled || __instance.biomeDepth != 0)
-                return true;
+                return;
             __result = WorldGenerateStructuresPatched(__instance, __result);
-            return false;
         }
 
         private static IEnumerator WorldGenerateStructuresPatched(WorldGeneration inst, IEnumerator original)
         {
-            if (Plugin.IsKaizoEnabled && inst.biomeDepth == 0)
-            {
-                inst.SetLoadingText("kaizocorruptingworld");
-                yield return null;
-                yield return WorldCorrupt.DoCorrupt();
-                inst.UpdateWorld();
-            }
-            yield return original;
+            inst.SetLoadingText("kaizocorruptingworld");
+            yield return null;
+            yield return WorldCorrupt.DoCorrupt();
+            inst.UpdateWorld();
+            
+            while (original.MoveNext())
+                yield return original.Current;
         }
     }
     

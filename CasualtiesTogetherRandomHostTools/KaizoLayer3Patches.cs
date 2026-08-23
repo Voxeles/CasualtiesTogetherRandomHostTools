@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
+using KrokoshaCasualtiesMP;
 using UnityEngine;
 
 namespace CasualtiesTogetherRandomHostTools;
@@ -12,7 +13,6 @@ internal static class KaizoLayer3Patches
 {
     private static bool _isWithinWorldPlaceEntities = false;
     
-    // Replace all traps with sound cannons
     [HarmonyPatch]
     private static class ReplaceAllTrapsWithSoundCannonsPatch
     {
@@ -61,20 +61,39 @@ internal static class KaizoLayer3Patches
         __instance.UpdateWorld();
     }
     
-    [HarmonyPatch(typeof(WorldGeneration), nameof(WorldGeneration.FinishWorldGeneration))]
-    [HarmonyPrefix]
-    private static void DestroySoundCannonsAboveSafeLinePatch(WorldGeneration __instance)
+    [HarmonyPatch]
+    private static class DestroySoundCannonsAboveSafeLinePatch
     {
-        if (!Plugin.IsKaizoEnabled || WorldGeneration.world.biomeDepth != 3)
-            return;
-
-        foreach (var obj in Object.FindObjectsByType<SoundCannon>(FindObjectsSortMode.None))
+        private static MethodBase TargetMethod()
         {
-            if (obj == null)
-                continue;
-            if (obj.transform.position.y < __instance.halfHeight - 16f)
-                continue;
-            Object.Destroy(obj);
+            var target = AccessTools.FirstInner(typeof(WorldGeneration), t => t.Name.Contains("<GenerateWorld>d__"));
+            return AccessTools.Method(target, "MoveNext");
+        }
+
+        private static void OnEnd()
+        {
+            if (!Plugin.IsKaizoEnabled || WorldGeneration.world.biomeDepth != 3)
+                return;
+            
+            var maxY = WorldGeneration.world.halfHeight - 16f;
+        
+            foreach (var obj in GameObject.FindObjectsByType<SoundCannon>(FindObjectsSortMode.None))
+            {
+                if (obj == null || obj.transform.position.y < maxY)
+                    continue;
+                obj.GetComponent<BuildingEntity>().health = 0f;
+                GameObject.Destroy(obj.gameObject);
+            }
+        }
+        
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            return new CodeMatcher(instructions)
+                .End()
+                .Insert(
+                    new CodeInstruction(OpCodes.Call,
+                        AccessTools.Method(typeof(DestroySoundCannonsAboveSafeLinePatch), nameof(OnEnd))))
+                .InstructionEnumeration();
         }
     }
 

@@ -51,7 +51,7 @@ internal static class FinalDestinationPatch
 
     private static IEnumerator Dummy()
     {
-        yield return null;
+        yield break;
     }
     
     [HarmonyPatch(typeof(WorldGeneration), nameof(WorldGeneration.WorldGenerateWorldBorders))]
@@ -78,7 +78,7 @@ internal static class FinalDestinationPatch
             if (!ShouldDoTheOverride) 
                 return;
             ShouldDoTheOverride = false;
-            WorldgenPatches.CreateSkyBackground(new Color(1, 1, 1, 0), 2f);
+            WorldgenPatches.CreateSkyBackground(Color.white, 2f);
             WorldGeneration.world.gameObject.AddComponent<KillPlayersAtBottomAndHideSavePanel>();
         }
         
@@ -139,6 +139,12 @@ public class KillPlayersAtBottomAndHideSavePanel : MonoBehaviour
     
     private void Update()
     {
+        if (WorldGeneration.world.doingRegen)
+        {
+            Destroy(this);
+            return;
+        }
+        
         if (WorldGeneration.world.savePanel.activeSelf)
             WorldGeneration.world.savePanel.SetActive(false);
 

@@ -42,7 +42,6 @@ public static class PingSaladsCommand
                 else
                 {
                     tracker = salad.gameObject.AddComponent<SaladTrackerComponent>();
-                    tracker.salad = salad;
                     tracker.duration = duration;
                 }
             }
@@ -58,7 +57,6 @@ public static class PingSaladsCommand
 
 public class SaladTrackerComponent : MonoBehaviour
 {
-    public ElderThornbackBehaviour salad;
     public float duration = 6f;
     public float elapsed = 0f;
     private GameObject _gb;
@@ -79,7 +77,7 @@ public class SaladTrackerComponent : MonoBehaviour
         _text = textGo.GetComponent<TextMeshPro>();
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         elapsed += Time.deltaTime;
         if (elapsed > duration)
@@ -87,10 +85,14 @@ public class SaladTrackerComponent : MonoBehaviour
             Destroy(this);
             return;
         }
-        
-        var pos = PlayerCamera.main.body.transform.position;
-        var dist = Vector3.Distance(pos, salad.transform.position);
-        var dir = (pos - salad.transform.position).normalized;
+
+        Vector2 pos =
+            UIInGame.SPECTATOR_MODE || PlayerCamera.main.isFreecam
+            ? PlayerCamera.main.transform.position
+            : PlayerCamera.main.body.transform.position;
+        Vector2 saladPos = transform.position;
+        var dist = Vector2.Distance(pos, saladPos);
+        var dir = (pos - saladPos).normalized;
         var angle = Vector2.SignedAngle(Vector2.right, dir) + 180f;
 
         _gb.transform.position = pos - dir * 5f;

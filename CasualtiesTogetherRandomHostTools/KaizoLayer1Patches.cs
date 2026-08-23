@@ -17,20 +17,17 @@ internal static class KaizoLayer1Patches
     [HarmonyPatch(typeof(WorldGeneration), nameof(WorldGeneration.WorldGenerateWorldBorders))]
     private static class FloodWorldPatch
     {
-        [HarmonyPriority(Priority.VeryLow)]
-        private static bool Prefix(WorldGeneration __instance, ref IEnumerator __result)
+        private static void Postfix(WorldGeneration __instance, ref IEnumerator __result)
         {
-            if (!Plugin.IsKaizoEnabled)
-                return true;
+            if (!Plugin.IsKaizoEnabled || __instance.biomeDepth != 1)
+                return;
             __result = WorldGenerateWorldBordersPatched(__instance, __result);
-            return false;
         }
     
         private static IEnumerator WorldGenerateWorldBordersPatched(WorldGeneration inst, IEnumerator original)
         {
-            yield return original;
-            if (!Plugin.IsKaizoEnabled || inst.biomeDepth != 1) 
-                yield break;
+            while (original.MoveNext())
+                yield return original.Current;
             
             inst.SetLoadingText("kaizofloodingworld");
             yield return null;
