@@ -14,6 +14,34 @@ namespace CasualtiesTogetherRandomHostTools;
 [HarmonyPatch]
 internal static class KaizoLayer1Patches
 {
+    private static List<Vector2Int> _lifepods = [];
+    
+    [HarmonyPatch(typeof(WorldGeneration), nameof(WorldGeneration.GenerateLifePods))]
+    private static class LogLifePods
+    {
+        private static void LogLifePod(Vector2Int blockPos) => _lifepods.Add(blockPos);
+        
+        private static void Prefix() => _lifepods = [];
+
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            return new CodeMatcher(instructions)
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Call,
+                        AccessTools.Method(typeof(WorldGeneration), nameof(WorldGeneration.GenerateObjectAtPos))))
+                .ThrowIfInvalid($"{nameof(LogLifePods)}.{nameof(Transpiler)} could not find a match (Call GenerateObjectAtPos)!")
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Call,
+                        AccessTools.Method(typeof(WorldGeneration), nameof(WorldGeneration.BlockToWorldPos))))
+                .ThrowIfInvalid($"{nameof(LogLifePods)}.{nameof(Transpiler)} could not find a match (Call BlockToWorldPos)!")
+                .Insert(
+                    new CodeInstruction(OpCodes.Dup),
+                    new CodeInstruction(OpCodes.Call,
+                        AccessTools.Method(typeof(LogLifePods), nameof(LogLifePod))))
+                .InstructionEnumeration();
+        }
+    }
+    
     [HarmonyPatch(typeof(WorldGeneration), nameof(WorldGeneration.WorldGenerateWorldBorders))]
     private static class FloodWorldPatch
     {
@@ -37,6 +65,20 @@ internal static class KaizoLayer1Patches
             inst.layerPrefix = Locale.GetOther("layermodifier" + floodedModifier.modifierIndex);
             inst.layerDescription = Locale.GetOther($"layermodifier{floodedModifier.modifierIndex.ToString()}dsc");
             WorldCorrupt.ReplaceAllLiquids(6);
+
+            var fluid = FluidManager.main.fluid;
+            foreach (var pos in _lifepods)
+            {
+                for (int x = -5; x <= 5; ++x)
+                {
+                    for (int y = -7; y <= 7; ++y)
+                    {
+                        var p = pos + new Vector2Int(x, y);
+                        fluid[p.x, p.y] = 0;
+                    }
+                }
+            }
+            _lifepods = [];
         }
     }
 

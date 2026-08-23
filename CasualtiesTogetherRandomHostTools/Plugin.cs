@@ -12,7 +12,7 @@ public class Plugin : BaseUnityPlugin
 {
 	public const string ModGUID = "cump.random.host.tools";
 	public const string ModName = "CasualtiesTogetherRandomHostTools";
-	public const string ModVersion = "0.0.3";
+	public const string ModVersion = "0.0.4";
 
 	internal new static ManualLogSource Logger;
 	private readonly Harmony _harmony = new(ModGUID);
