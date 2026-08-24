@@ -1,0 +1,2 @@
+# By using this software, be it in its source or compiled form, you agree that it is your responsibility to keep this expie happy; and that you will do no harm to any Sawian.
+![Expie](https://pbs.twimg.com/media/HLjxKbZW0AANSNb?format=jpg&name=orig)
