@@ -6,7 +6,7 @@
 
     <!--If auto-detection misses your install, set this to your game folder.-->
     <!-- E.g. <ManualBaseGamePath>C:\Some\Path\To\Your\Game\Folder</ManualBaseGamePath> -->
-    <ManualBaseGamePath>D:\Programs\Steam\steamapps\common\Casualties Unknown Demo</ManualBaseGamePath>
+    <ManualBaseGamePath> </ManualBaseGamePath>
 
 
     <BaseGamePath Condition="'$(BaseGamePath)' == '' and '$(ManualBaseGamePath)' != ''">$(ManualBaseGamePath)</BaseGamePath>
