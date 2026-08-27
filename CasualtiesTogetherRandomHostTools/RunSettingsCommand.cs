@@ -134,10 +134,10 @@ public static class RunSettingsCommand
             {
                 if (!_showedWarning)
                 {
-                    Con.con.LogToConsole($"<color=yellow>WARNING: Changing the run settings mid-run can cause desync issues until you proceed to the next layer!</color>");
-                    Con.con.LogToConsole($"<color=yellow>The recommended use for this command is on the main menu before starting new runs, or before descending to a new layer.</color>");
-                    Con.con.LogToConsole($"<color=yellow>Use the 'skiplayer' command to reload the current layer (current layer index = {WorldGeneration.world.biomeDepth}).</color>");
-                    Con.con.LogToConsole($"<color=yellow>Retype this command if you understand the risks.</color>");
+                    Con.con.LogToConsole($"<color=yellow>WARNING: Changing the run settings mid-run can cause desync issues until you reload the save!</color>");
+                    Con.con.LogToConsole($"<color=yellow>The recommended use for this command is on the main menu before starting new runs, or at the start of a new layer.</color>");
+                    Con.con.LogToConsole($"<color=yellow>Change the settings using 'RunSettings', then save the game using 'saveandquit' and load the save to apply the new settings.</color>");
+                    Con.con.LogToConsole($"<color=yellow>Nothing has been changed. Retype this command once you understand how to use it.</color>");
                     _showedWarning = true;
                     return;
                 }

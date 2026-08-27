@@ -26,7 +26,7 @@ Adds various commands for Hosts to use
 
 5. `RunSettings`
 - Allows you to change the run settings to any value, including out-of-bounds values
-- You can also use this to change the run settings mid-layer. Note that this requires reloading the layer to work correctly (either by continuing, saving and quitting, or using 'skiplayer')
+- You can also use this to change the run settings mid-run. Note that this requires reloading the save to work correctly (change the settings, then use the saveandquit command)
 
 6. `KaizoEnabled`
 - Enable the Kaizo mode
