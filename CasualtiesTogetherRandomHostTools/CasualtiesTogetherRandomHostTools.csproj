@@ -1,9 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
+    <BepInExPluginGuid>cump.random.host.tools</BepInExPluginGuid>
+    <ProjectName>CasualtiesTogetherRandomHostTools</ProjectName>
+    <Version>0.1.0</Version>
     <AssemblyName>$(ProjectName)</AssemblyName>
     <Product>$(ProjectName)</Product>
-    <Version>0.0.4</Version>
+    <BepInExPluginName>$(ProjectName)</BepInExPluginName>
+    <BepInExPluginVersion>$(Version)</BepInExPluginVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>

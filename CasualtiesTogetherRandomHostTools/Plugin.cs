@@ -6,16 +6,16 @@ using KrokoshaCasualtiesMP;
 
 namespace CasualtiesTogetherRandomHostTools;
 
-[BepInPlugin(ModGUID, ModName, ModVersion)]
+[BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency("KrokoshaCasualtiesMP")]
 public class Plugin : BaseUnityPlugin
 {
-	public const string ModGUID = "cump.random.host.tools";
-	public const string ModName = "CasualtiesTogetherRandomHostTools";
-	public const string ModVersion = "0.1.0";
+	public const string ModGuid = MyPluginInfo.PLUGIN_GUID;
+	public const string ModName = MyPluginInfo.PLUGIN_NAME;
+	public const string ModVersion = MyPluginInfo.PLUGIN_VERSION;
 
 	internal new static ManualLogSource Logger;
-	private readonly Harmony _harmony = new(ModGUID);
+	private readonly Harmony _harmony = new(ModGuid);
 	public static Plugin Instance { get; private set; } = null!;
 
 	public static bool IsKaizoEnabled = false;
