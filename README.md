@@ -31,3 +31,8 @@ Adds various commands for Hosts to use
 6. `KaizoEnabled`
 - Enable the Kaizo mode
 - Adds a new 'fun' gimmick for every layer
+
+7. `SavePlayerState`
+- Allows you to save the player's state (inventory, health, skill xp)
+- Restore a player's state with `LoadPlayerState`
+- Has an auto-save feature where the player states are created automatically (see `SavePlayerStateAuto`)
