@@ -123,23 +123,6 @@ internal static class KaizoLayer1Patches
         }
     }
 
-    private static float GetSyncTimer(float original)
-        => Plugin.IsKaizoEnabled && WorldGeneration.world.biomeDepth == 1 ? 0.15f : original;
-
-    [HarmonyPatch(typeof(WorldChunkSync), nameof(WorldChunkSync.LateUpdate))]
-    [HarmonyTranspiler]
-    private static IEnumerable<CodeInstruction> SyncFasterTranspiler(IEnumerable<CodeInstruction> instructions)
-    {
-        return new CodeMatcher(instructions)
-            .End()
-            .MatchBack(false,
-                new CodeMatch(OpCodes.Ble_Un))
-            .ThrowIfInvalid($"{nameof(KaizoLayer1Patches)}.{nameof(SyncFasterTranspiler)} could not find a match!")
-            .Insert(new CodeInstruction(OpCodes.Call,
-                AccessTools.Method(typeof(KaizoLayer1Patches), nameof(GetSyncTimer))))
-            .InstructionEnumeration();
-    }
-
     [HarmonyPatch(typeof(WorldgenPatches), nameof(WorldgenPatches.ServerReceiver_FinishedWorldgen))]
     [HarmonyPostfix]
     private static void QueueLiquidSyncForPlayer(knetid clientId)
