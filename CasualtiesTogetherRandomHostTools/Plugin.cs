@@ -12,7 +12,7 @@ public class Plugin : BaseUnityPlugin
 {
 	public const string ModGUID = "cump.random.host.tools";
 	public const string ModName = "CasualtiesTogetherRandomHostTools";
-	public const string ModVersion = "0.0.4";
+	public const string ModVersion = "0.1.0";
 
 	internal new static ManualLogSource Logger;
 	private readonly Harmony _harmony = new(ModGUID);
@@ -25,7 +25,11 @@ public class Plugin : BaseUnityPlugin
 		Logger = base.Logger;
 		Instance = this;
 
+		SavePlayerStateAutoWatcher.BindConfigs(this);
+
 		_ = new AutoTranslate(this);
+
+		gameObject.AddComponent<SavePlayerStateAutoWatcher>();
 
 		_harmony.PatchAll();
 
@@ -44,4 +48,3 @@ public class Plugin : BaseUnityPlugin
 		Logger.LogError($"ERROR: {message}");
 	}
 }
-

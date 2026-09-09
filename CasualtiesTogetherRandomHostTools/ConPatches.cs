@@ -16,6 +16,7 @@ internal static class ConPatches
         PingSaladsCommand.Register();
         RunSettingsCommand.Register();
         SyncTimerCommand.Register();
+        SavePlayerStateCommand.Register();
         
         var comm = new Command("KaizoEnabled", "Is kaizo game mode enabled", args =>
         {
