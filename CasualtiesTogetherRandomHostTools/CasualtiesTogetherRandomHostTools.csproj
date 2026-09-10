@@ -3,7 +3,7 @@
     <TargetFramework>net48</TargetFramework>
     <BepInExPluginGuid>cump.random.host.tools</BepInExPluginGuid>
     <ProjectName>CasualtiesTogetherRandomHostTools</ProjectName>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <AssemblyName>$(ProjectName)</AssemblyName>
     <Product>$(ProjectName)</Product>
     <BepInExPluginName>$(ProjectName)</BepInExPluginName>
