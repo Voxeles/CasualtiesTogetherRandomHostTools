@@ -176,6 +176,27 @@ public static class SavePlayerStateCommand
             ("value", "new value, leave blank to read current value")
         ]);
         Con.RegisterCommand(comm);
+
+        // comm = new Command("FuckUpPlayerName", "Replaces all underscores with spaces", args =>
+        // {
+        //     Con.ConFailIfNetworkIsRunningAndIsClient();
+        //     Con.ConFailIfNetworkNotRunning();
+        //     Con.con.CheckArgumentCount(args, 1);
+        //
+        //     string plrname = args[1];
+        //     string newname = args[1].Replace('_', ' ');
+        //     var tuple = ServerMain._PerformActionOnPlayersByName(plrname, plr =>
+        //     {
+        //         Con.con.LogToConsole($"Renamed {plr} to {newname}");
+        //         plr.nameIsCustom = true;
+        //         plr.ApplyNameAndColor(newname, plr.plrcolor);
+        //     });
+        //     if (tuple.Item1)
+        //         return;
+        //     Con.con.LogToConsole("Rename error: " + tuple.Item2);
+        //
+        // }, null, ("player", ""));
+        // Con.RegisterCommand(comm);
     }
 
     private static readonly HashSet<char> InvalidChars = [' ', '<', '>', ':', '"', '/', '\\', '|', '?', '*'];
