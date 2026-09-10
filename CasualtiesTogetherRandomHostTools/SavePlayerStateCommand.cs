@@ -50,6 +50,14 @@ public static class SavePlayerStateCommand
                 var file = Path.Combine(dirPath, fileName);
                 var data = SavedPlayerState.Create(body);
                 var str = data.Serialize();
+
+                int i = 1;
+                while (File.Exists(file))
+                {
+                    fileName = $"{playername}-{timeStr}_({i++}).json";
+                    file = Path.Combine(dirPath, fileName);
+                }
+
                 File.WriteAllBytes(file, Encoding.UTF8.GetBytes(str));
                 Con.con.LogToConsole($"Wrote {body.playername} state to file: {file}");
             });

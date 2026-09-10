@@ -57,6 +57,8 @@ public class SavePlayerStateAutoWatcher : MonoBehaviour
         Directory.CreateDirectory(dirPath);
         var timeStr = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
 
+        int saveCount = 0;
+
         foreach (var netBody in NetBody.all_instances)
         {
             try
@@ -66,8 +68,17 @@ public class SavePlayerStateAutoWatcher : MonoBehaviour
                 var file = Path.Combine(dirPath, fileName);
                 var data = SavedPlayerState.Create(netBody);
                 var str = data.Serialize();
+
+                int i = 1;
+                while (File.Exists(file))
+                {
+                    fileName = $"{playername}-auto-{timeStr}_({i++}).json";
+                    file = Path.Combine(dirPath, fileName);
+                }
+
                 File.WriteAllBytes(file, Encoding.UTF8.GetBytes(str));
-                Con.con.LogToConsole($"Wrote {playername} file to {file}");
+
+                saveCount++;
 
                 PruneOldAutoSaves(dirPath, playername);
             }
@@ -76,6 +87,8 @@ public class SavePlayerStateAutoWatcher : MonoBehaviour
                 Plugin.PrintError($"Failed to auto-save {netBody.playername}: {e}");
             }
         }
+
+        Con.con.LogToConsole($"Player state backup complete. Saved {saveCount} player states.");
 
         SavePlayerStateCommand.UpdateFiles();
     }
