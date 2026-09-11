@@ -45,6 +45,12 @@ public class Plugin : BaseUnityPlugin
 	internal static void PrintError(string message)
 	{
 		Con.con.LogToConsole($"<color=red>{ModName}: ERROR: {message}</color>");
-		Logger.LogError($"ERROR: {message}");
+		Logger.LogError($"{message}");
+	}
+
+	internal static void PrintWarning(string message)
+	{
+		Con.con.LogToConsole($"<color=yellow>{ModName}: WARNING: {message}</color>");
+		Logger.LogWarning($"{message}");
 	}
 }

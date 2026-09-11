@@ -27,7 +27,7 @@ public static class SavePlayerStateCommand
         }
         catch (Exception ex)
         {
-            Plugin.Logger.LogWarning("Failed to read files: " + ex);
+            Plugin.PrintWarning("Failed to read files: " + ex);
         }
     }
 
@@ -89,15 +89,11 @@ public static class SavePlayerStateCommand
             if (!File.Exists(filePath))
                 throw new Exception($"File {filePath} does not exist");
 
-            Plugin.Logger.LogInfo($"Loading: {filePath}");
-
             var data = SavedPlayerState.Deserialize(File.ReadAllText(filePath));
             if (data == null)
                 throw new Exception($"Failed to read file: {filePath}");
 
             var netBody = ServerMain.RelaxedGetBodyForCommand(playerName, false, true);
-
-            Plugin.Logger.LogInfo($"Applying: {data}");
             data.Apply(netBody, scope);
 
             ConsoleScript.instance.LogToConsole($"Loaded {playerName}'s state!");

@@ -13,6 +13,16 @@ using Object = UnityEngine.Object;
 
 namespace CasualtiesTogetherRandomHostTools;
 
+// Issues:
+// - Mp mod has no way of syncing favourited items.
+// Save the favourited status, but don't restore it.
+// Otherwise, desync occurs where clients can't use their items for crafting, even though they have it unfavourited.
+// - Mp mod has no way of syncing crafted recipes.
+// Save and restore it. That way, INT xp for crafting is still awarded correctly, but the Client needs to remember what they crafted previously.
+// - Body components seem useless with MP mod's health and painkiller packets
+// Save the body components, but don't restore them. There might be other body components I missed.
+// Painkillers and mindwipe are handled by MP mod's packets. I don't know of any others.
+
 public sealed class SavedPlayerState
 {
     public List<SavedItem> SavedItemList = [];
@@ -30,10 +40,10 @@ public sealed class SavedPlayerState
     [Flags]
     public enum RestoreSelection
     {
-        All = Inventory | Health | Recipes,
+        All = Inventory | Health | Crafting,
         Inventory = 1 << 0,
         Health = 1 << 1,
-        Recipes = 1 << 2,
+        Crafting = 1 << 2,
     }
 
     private static Dictionary<Type, string> SerializeComponents(Component item)
@@ -144,48 +154,29 @@ public sealed class SavedPlayerState
 
     public void Apply(NetBody netBody, RestoreSelection selection)
     {
-        // Issues:
-        // - Mp mod has no way of syncing favourited items.
-        // Drop this info so that clients can still craft (otherwise weird desync occurs where the client can't use their items)
-        // - Mp mod has no way of syncing crafted recipes.
-        // This info is still kept server-side but never communicated to the clients map upon load.
-        // That way, INT xp is still awarded correctly, but the Client needs to remember what they crafted.
-
         var body = netBody.body;
 
-        if (selection.HasFlag(RestoreSelection.Recipes))
+        if (selection.HasFlag(RestoreSelection.Crafting))
         {
-            Plugin.Logger.LogInfo($"tosave_hascrafterbeforerecipes");
-
             netBody.plr.tosave_hascrafterbeforerecipes = RecipesCrafted;
         }
 
         if (selection.HasFlag(RestoreSelection.Health))
         {
-            Plugin.Logger.LogInfo($"Health");
-
             Health.Apply(body);
-
-            Plugin.Logger.LogInfo($"Painkillers");
 
             Painkillers.Apply(body);
         }
 
         if (selection.HasFlag(RestoreSelection.Inventory))
         {
-            Plugin.Logger.LogInfo($"Destroying items");
-
             foreach (Item item in body.GetAllItemsThorough())
                 Object.Destroy(item.gameObject);
             body.Body_DropAllItems();
 
-            Plugin.Logger.LogInfo($"Items");
-
             for (int i = 0; i < SavedItemList.Count; i++)
             {
                 var savedItem = SavedItemList[i];
-
-                Plugin.Logger.LogInfo($"Item {i}: {savedItem.id}");
 
                 Item item;
                 try
@@ -198,7 +189,7 @@ public sealed class SavedPlayerState
                 }
                 catch (Exception ex)
                 {
-                    ConsoleScript.instance.Alert($"Error occured during creating item \"{savedItem.id}\".\n{ex.Message}\n{ex.StackTrace}\nLoading will continue.");
+                    Plugin.PrintWarning($"Error occured while creating item \"{savedItem.id}\".\n{ex.Message}\n{ex.StackTrace}\nLoading will continue.");
                     continue;
                 }
 
@@ -218,18 +209,14 @@ public sealed class SavedPlayerState
                 }
                 catch (Exception ex)
                 {
-                    ConsoleScript.instance.Alert($"Error occured during picking up item \"{item}\".\n{ex.Message}\n{ex.StackTrace}\nLoading will continue.");
+                    Plugin.PrintWarning($"Error occured while picking up item \"{item}\".\n{ex.Message}\n{ex.StackTrace}\nLoading will continue.");
                     continue;
                 }
-
-                Plugin.Logger.LogInfo($"Components");
 
                 var components = ComponentsDictionary[i];
 
                 foreach (var (type, serialized) in components.Select(x => (x.Key, x.Value)))
                 {
-                    Plugin.Logger.LogInfo($"Component {type}: {serialized}");
-
                     if (!item.gameObject.TryGetComponent(type, out var comp))
                         comp = item.gameObject.AddComponent(type);
 
@@ -244,17 +231,14 @@ public sealed class SavedPlayerState
                             if (field.Name.Contains("WasFavourited"))
                                 value = false;
                             field.SetValue(comp, value);
-                            Plugin.Logger.LogInfo($"SET Component {comp} field {field} to {value}");
                         }
                         catch (Exception ex)
                         {
-                            Plugin.Logger.LogError($"Failed to deserialize {type} in {item} at {pair.Key} with {pair.Value}: {ex}");
+                            Plugin.PrintWarning($"Failed to deserialize component \"{comp}\" of type {type} in item \"{item}\".\nField: {pair.Key}\nValue:{pair.Value}\n{ex.Message}\n{ex.StackTrace}\nLoading will continue.");
                         }
                     }
                 }
             }
-
-            // Apply body components...? I think it's just painkillers and mindwipe, both are already handled by MP mod's packets
 
             foreach (Item obj in body.GetAllItemsThorough())
             {
