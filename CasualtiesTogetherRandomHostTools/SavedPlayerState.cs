@@ -53,10 +53,6 @@ public sealed class SavedPlayerState
         return JsonConvert.DeserializeObject<SavedPlayerState>(str, JsonSettings);
     }
 
-    // Issues:
-    // Mp mod has no way of syncing favourited items. Drop this info so that clients can still craft.
-    // Mp mod has no way of syncing crafted recipes. This info is still kept server-side but never communicated to the clients map upon load
-
     public static SavedPlayerState Create(NetBody netBody)
     {
         var result = new SavedPlayerState();
@@ -75,7 +71,7 @@ public sealed class SavedPlayerState
                 id = item.id,
                 condition = item.condition,
                 slot = slot,
-                //favourited = item.favourited
+                favourited = item.favourited
             });
 
             result.ComponentsDictionary.Add(itemKey++, SerializeComponents(item));
@@ -92,7 +88,7 @@ public sealed class SavedPlayerState
                     id = innerItem.id,
                     condition = innerItem.condition,
                     slot = slot,
-                    //favourited = innerItem.favourited
+                    favourited = innerItem.favourited
                 });
 
                 result.ComponentsDictionary.Add(itemKey++, SerializeComponents(innerItem));
@@ -107,7 +103,7 @@ public sealed class SavedPlayerState
                 condition = wearable.condition,
                 slot = -1,
                 wearSlot = wearable.Stats.wearSlotId,
-                //favourited = wearable.favourited
+                favourited = wearable.favourited
             });
 
             result.ComponentsDictionary.Add(itemKey++, SerializeComponents(wearable));
@@ -125,7 +121,7 @@ public sealed class SavedPlayerState
                     condition = innerItem.condition,
                     slot = -1,
                     wearSlot = wearable.Stats.wearSlotId,
-                    //favourited = innerItem.favourited
+                    favourited = innerItem.favourited
                 });
 
                 result.ComponentsDictionary.Add(itemKey++, SerializeComponents(innerItem));
@@ -148,6 +144,13 @@ public sealed class SavedPlayerState
 
     public void Apply(NetBody netBody, RestoreSelection selection)
     {
+        // Issues:
+        // - Mp mod has no way of syncing favourited items.
+        // Drop this info so that clients can still craft (otherwise weird desync occurs where the client can't use their items)
+        // - Mp mod has no way of syncing crafted recipes.
+        // This info is still kept server-side but never communicated to the clients map upon load.
+        // That way, INT xp is still awarded correctly, but the Client needs to remember what they crafted.
+
         var body = netBody.body;
 
         if (selection.HasFlag(RestoreSelection.Recipes))
@@ -190,7 +193,8 @@ public sealed class SavedPlayerState
                     var gameObject = Object.Instantiate(Resources.Load(savedItem.id), body.transform.position + (Vector3)UnityEngine.Random.insideUnitCircle, Quaternion.identity) as GameObject;
                     item = gameObject.GetComponent<Item>();
                     item.condition = savedItem.condition;
-                    item.favourited = savedItem.favourited;
+                    // Drop favourited info
+                    //item.favourited = savedItem.favourited;
                 }
                 catch (Exception ex)
                 {
@@ -236,6 +240,9 @@ public sealed class SavedPlayerState
                         {
                             var field = type.GetField(pair.Key);
                             var value = pair.Value.ToObject(field.FieldType);
+                            // Drop favourited info
+                            if (field.Name.Contains("WasFavourited"))
+                                value = false;
                             field.SetValue(comp, value);
                             Plugin.Logger.LogInfo($"SET Component {comp} field {field} to {value}");
                         }
