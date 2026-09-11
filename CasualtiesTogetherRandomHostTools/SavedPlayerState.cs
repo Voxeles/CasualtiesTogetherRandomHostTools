@@ -27,6 +27,15 @@ public sealed class SavedPlayerState
         ContractResolver = new SavedPlayerStateContractResolver()
     };
 
+    [Flags]
+    public enum RestoreSelection
+    {
+        All = Inventory | Health | Recipes,
+        Inventory = 1 << 0,
+        Health = 1 << 1,
+        Recipes = 1 << 2,
+    }
+
     private static Dictionary<Type, string> SerializeComponents(Component item)
     {
         return item.gameObject.GetComponents<Component>()
@@ -137,112 +146,124 @@ public sealed class SavedPlayerState
         return result;
     }
 
-    public void Apply(NetBody netBody)
+    public void Apply(NetBody netBody, RestoreSelection selection)
     {
         var body = netBody.body;
 
-        Plugin.Logger.LogInfo($"Destroying items");
-
-        foreach (Item item in body.GetAllItemsThorough())
-            Object.Destroy(item.gameObject);
-        body.Body_DropAllItems();
-
-        Plugin.Logger.LogInfo($"tosave_hascrafterbeforerecipes");
-
-        netBody.plr.tosave_hascrafterbeforerecipes = RecipesCrafted;
-
-        Plugin.Logger.LogInfo($"Health");
-
-        Health.Apply(body);
-
-        Plugin.Logger.LogInfo($"Painkillers");
-
-        Painkillers.Apply(body);
-
-        Plugin.Logger.LogInfo($"Items");
-
-        for (int i = 0; i < SavedItemList.Count; i++)
+        if (selection.HasFlag(RestoreSelection.Recipes))
         {
-            var savedItem = SavedItemList[i];
+            Plugin.Logger.LogInfo($"tosave_hascrafterbeforerecipes");
 
-            Plugin.Logger.LogInfo($"Item {i}: {savedItem.id}");
+            netBody.plr.tosave_hascrafterbeforerecipes = RecipesCrafted;
+        }
 
-            Item item;
-            try
-            {
-                var gameObject = Object.Instantiate(Resources.Load(savedItem.id), body.transform.position + (Vector3)UnityEngine.Random.insideUnitCircle, Quaternion.identity) as GameObject;
-                item = gameObject.GetComponent<Item>();
-                item.condition = savedItem.condition;
-                item.favourited = savedItem.favourited;
-            }
-            catch (Exception ex)
-            {
-                ConsoleScript.instance.Alert($"Error occured during creating item \"{savedItem.id}\".\n{ex.Message}\n{ex.StackTrace}\nLoading will continue.");
-                continue;
-            }
+        if (selection.HasFlag(RestoreSelection.Health))
+        {
+            Plugin.Logger.LogInfo($"Health");
 
-            try
+            Health.Apply(body);
+
+            Plugin.Logger.LogInfo($"Painkillers");
+
+            Painkillers.Apply(body);
+        }
+
+        if (selection.HasFlag(RestoreSelection.Inventory))
+        {
+            Plugin.Logger.LogInfo($"Destroying items");
+
+            foreach (Item item in body.GetAllItemsThorough())
+                Object.Destroy(item.gameObject);
+            body.Body_DropAllItems();
+
+            Plugin.Logger.LogInfo($"Items");
+
+            for (int i = 0; i < SavedItemList.Count; i++)
             {
-                if (savedItem.slot >= 0)
+                var savedItem = SavedItemList[i];
+
+                Plugin.Logger.LogInfo($"Item {i}: {savedItem.id}");
+
+                Item item;
+                try
                 {
-                    if (body.HoldingItem(savedItem.slot))
-                        body.GetItem(savedItem.slot).GetComponent<Container>().LoadItem(item);
+                    var gameObject = Object.Instantiate(Resources.Load(savedItem.id), body.transform.position + (Vector3)UnityEngine.Random.insideUnitCircle, Quaternion.identity) as GameObject;
+                    item = gameObject.GetComponent<Item>();
+                    item.condition = savedItem.condition;
+                    item.favourited = savedItem.favourited;
+                }
+                catch (Exception ex)
+                {
+                    ConsoleScript.instance.Alert($"Error occured during creating item \"{savedItem.id}\".\n{ex.Message}\n{ex.StackTrace}\nLoading will continue.");
+                    continue;
+                }
+
+                try
+                {
+                    if (savedItem.slot >= 0)
+                    {
+                        if (body.HoldingItem(savedItem.slot))
+                            body.GetItem(savedItem.slot).GetComponent<Container>().LoadItem(item);
+                        else
+                            body.PickUpItem(item, savedItem.slot, true);
+                    }
+                    else if (body.GetWearableBySlotID(savedItem.wearSlot))
+                        body.GetWearableBySlotID(savedItem.wearSlot).GetComponent<Container>().LoadItem(item);
                     else
-                        body.PickUpItem(item, savedItem.slot, true);
+                        body.WearWearable(item);
                 }
-                else if (body.GetWearableBySlotID(savedItem.wearSlot))
-                    body.GetWearableBySlotID(savedItem.wearSlot).GetComponent<Container>().LoadItem(item);
-                else
-                    body.WearWearable(item);
-            }
-            catch (Exception ex)
-            {
-                ConsoleScript.instance.Alert($"Error occured during picking up item \"{item}\".\n{ex.Message}\n{ex.StackTrace}\nLoading will continue.");
-                continue;
-            }
-
-            Plugin.Logger.LogInfo($"Components");
-
-            var components = ComponentsDictionary[i];
-
-            foreach (var (type, serialized) in components.Select(x => (x.Key, x.Value)))
-            {
-                Plugin.Logger.LogInfo($"Component {type}: {serialized}");
-
-                if (!item.gameObject.TryGetComponent(type, out var comp))
-                    comp = item.gameObject.AddComponent(type);
-
-                var o = JObject.Parse(serialized);
-                foreach (var pair in o)
+                catch (Exception ex)
                 {
-                    try
+                    ConsoleScript.instance.Alert($"Error occured during picking up item \"{item}\".\n{ex.Message}\n{ex.StackTrace}\nLoading will continue.");
+                    continue;
+                }
+
+                Plugin.Logger.LogInfo($"Components");
+
+                var components = ComponentsDictionary[i];
+
+                foreach (var (type, serialized) in components.Select(x => (x.Key, x.Value)))
+                {
+                    Plugin.Logger.LogInfo($"Component {type}: {serialized}");
+
+                    if (!item.gameObject.TryGetComponent(type, out var comp))
+                        comp = item.gameObject.AddComponent(type);
+
+                    var o = JObject.Parse(serialized);
+                    foreach (var pair in o)
                     {
-                        var field = type.GetField(pair.Key);
-                        var value = pair.Value.ToObject(field.FieldType);
-                        field.SetValue(comp, value);
-                        Plugin.Logger.LogInfo($"SET Component {comp} field {field} to {value}");
-                    }
-                    catch (Exception ex)
-                    {
-                        Plugin.Logger.LogError($"Failed to deserialize {type} in {item} at {pair.Key} with {pair.Value}: {ex}");
+                        try
+                        {
+                            var field = type.GetField(pair.Key);
+                            var value = pair.Value.ToObject(field.FieldType);
+                            field.SetValue(comp, value);
+                            Plugin.Logger.LogInfo($"SET Component {comp} field {field} to {value}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Plugin.Logger.LogError($"Failed to deserialize {type} in {item} at {pair.Key} with {pair.Value}: {ex}");
+                        }
                     }
                 }
             }
+
+            // Apply body components...? I think it's just painkillers and mindwipe, both are already handled by MP mod's packets
+
+            foreach (Item obj in body.GetAllItemsThorough())
+            {
+                if (NetObjectRegistry.ObjectCanBeIgnoredForNetwork(obj.gameObject))
+                    continue;
+
+                SyncInfo si = NetObjectRegistry.Server_EnsureItemIsNetworkRegistered(obj.gameObject);
+                if (si != null)
+                    NetObjectRegistry.Server_QueueSync(si);
+            }
         }
 
-        // Apply body components...? I think it's just painkillers and mindwipe, both are already handled by MP mod's packets
-
-        foreach (Item obj in body.GetAllItemsThorough())
+        if (selection.HasFlag(RestoreSelection.Health))
         {
-            if (NetObjectRegistry.ObjectCanBeIgnoredForNetwork(obj.gameObject))
-                continue;
-
-            SyncInfo si = NetObjectRegistry.Server_EnsureItemIsNetworkRegistered(obj.gameObject);
-            if (si != null)
-                NetObjectRegistry.Server_QueueSync(si);
+            MedicalSync.Server_QueueSendCharacterHealth(netBody, true);
         }
-
-        MedicalSync.Server_QueueSendCharacterHealth(netBody, true);
     }
 
     public class SavedPlayerStateContractResolver : DefaultContractResolver

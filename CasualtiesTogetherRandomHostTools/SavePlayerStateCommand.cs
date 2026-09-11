@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using KrokoshaCasualtiesMP;
 using Newtonsoft.Json;
@@ -32,7 +33,7 @@ public static class SavePlayerStateCommand
 
     public static void Register()
     {
-        var comm = new Command("SavePlayerState", "Save a player's state (inventory, health, skills)", args =>
+        var comm = new Command("SavePlayerState", "Save a player's state (inventory, health, etc.)", args =>
         {
             Con.ConFailIfNetworkNotRunning();
             Con.ConFailIfNetworkIsRunningAndIsClient();
@@ -76,9 +77,15 @@ public static class SavePlayerStateCommand
             Con.ConFailIfNetworkNotRunning();
             Con.ConFailIfNetworkIsRunningAndIsClient();
             ConsoleScript.instance.CheckForWorld();
-            ConsoleScript.instance.CheckArgumentCount(args, 2);
+            ConsoleScript.instance.CheckArgumentCount(args, 3);
 
-            var filePath = Path.Combine(SaveDirPath, args[2]);
+            if (!Enum.TryParse(args[1], ignoreCase: true, out SavedPlayerState.RestoreSelection scope))
+                throw new Exception($"Failed to parse scope \"{args[1]}\"");
+
+            var playerName = args[2];
+            var fileName = args[3];
+
+            var filePath = Path.Combine(SaveDirPath, fileName);
             if (!File.Exists(filePath))
                 throw new Exception($"File {filePath} does not exist");
 
@@ -88,16 +95,18 @@ public static class SavePlayerStateCommand
             if (data == null)
                 throw new Exception($"Failed to read file: {filePath}");
 
-            var netBody = ServerMain.RelaxedGetBodyForCommand(args[1], false, true);
+            var netBody = ServerMain.RelaxedGetBodyForCommand(playerName, false, true);
 
             Plugin.Logger.LogInfo($"Applying: {data}");
-            data.Apply(netBody);
+            data.Apply(netBody, scope);
 
-            ConsoleScript.instance.LogToConsole($"Loaded {args[1]}'s state!");
+            ConsoleScript.instance.LogToConsole($"Loaded {playerName}'s state!");
 
         }, new Dictionary<int, List<string>> {
-            {1, _savedFiles}
+            {0, Enum.GetNames(typeof(SavedPlayerState.RestoreSelection)).Select(s => s.ToLowerInvariant()).ToList()},
+            {2, _savedFiles}
         }, [
+            ("scope", "what to restore. concatenate with ',' (no space)"),
             ("player", "player whose state to restore"),
             ("file", "file to load")
         ]);
