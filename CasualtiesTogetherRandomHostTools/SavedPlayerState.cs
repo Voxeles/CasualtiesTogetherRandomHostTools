@@ -21,7 +21,6 @@ public sealed class SavedPlayerState
     public CharacterHealthPainkillerStateSyncPacket Painkillers;
     public CharacterHealthStateSyncPacket Health;
     public List<int> RecipesCrafted = [];
-    public Color24 PlayerColor;
 
     public static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
     {
@@ -134,7 +133,6 @@ public sealed class SavedPlayerState
         result.Health = new CharacterHealthStateSyncPacket(body);
 
         result.RecipesCrafted = new List<int>(netBody.plr.tosave_hascrafterbeforerecipes);
-        result.PlayerColor = netBody.plr.plrcolor;
 
         return result;
     }
@@ -149,9 +147,8 @@ public sealed class SavedPlayerState
             Object.Destroy(item.gameObject);
         body.Body_DropAllItems();
 
-        Plugin.Logger.LogInfo($"plrcolor and tosave_hascrafterbeforerecipes");
+        Plugin.Logger.LogInfo($"tosave_hascrafterbeforerecipes");
 
-        netBody.plr.plrcolor = PlayerColor;
         netBody.plr.tosave_hascrafterbeforerecipes = RecipesCrafted;
 
         Plugin.Logger.LogInfo($"Health");
