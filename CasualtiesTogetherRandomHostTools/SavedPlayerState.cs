@@ -19,16 +19,13 @@ namespace CasualtiesTogetherRandomHostTools;
 // Otherwise, desync occurs where clients can't use their items for crafting, even though they have it unfavourited.
 // - Mp mod has no way of syncing crafted recipes.
 // Save and restore it. That way, INT xp for crafting is still awarded correctly, but the Client needs to remember what they crafted previously.
-// - Body components seem useless with MP mod's health and painkiller packets
-// Save the body components, but don't restore them. There might be other body components I missed.
-// Painkillers and mindwipe are handled by MP mod's packets. I don't know of any others.
 
 public sealed class SavedPlayerState
 {
     public List<SavedItem> SavedItemList = [];
-    public Dictionary<int, Dictionary<Type, string>> ComponentsDictionary = [];
-    public List<Dictionary<Type, string>> BodyComponentsDictionaryUnused = [];
-    public CharacterHealthPainkillerStateSyncPacket Painkillers;
+    public Dictionary<int, Dictionary<Type, string>> ItemComponentsDictionary = [];
+    public Dictionary<Type, string> BodyComponentsDictionary = [];
+    public List<Dictionary<Type, string>> LimbComponentsDictionary = [];
     public CharacterHealthStateSyncPacket Health;
     public List<int> RecipesCrafted = [];
 
@@ -46,22 +43,9 @@ public sealed class SavedPlayerState
         Crafting = 1 << 2,
     }
 
-    private static Dictionary<Type, string> SerializeComponents(Component item)
-    {
-        return item.gameObject.GetComponents<Component>()
-            .Where(x => Attribute.GetCustomAttributes(x.GetType()).Any(attr => attr is Saveable))
-            .ToDictionary(component => component.GetType(), component => JsonConvert.SerializeObject(component));
-    }
+    public string Serialize() => JsonConvert.SerializeObject(this, Formatting.Indented, JsonSettings);
 
-    public string Serialize()
-    {
-        return JsonConvert.SerializeObject(this, Formatting.Indented, JsonSettings);
-    }
-
-    public static SavedPlayerState Deserialize(string str)
-    {
-        return JsonConvert.DeserializeObject<SavedPlayerState>(str, JsonSettings);
-    }
+    public static SavedPlayerState Deserialize(string str) => JsonConvert.DeserializeObject<SavedPlayerState>(str, JsonSettings);
 
     public static SavedPlayerState Create(NetBody netBody)
     {
@@ -84,7 +68,7 @@ public sealed class SavedPlayerState
                 favourited = item.favourited
             });
 
-            result.ComponentsDictionary.Add(itemKey++, SerializeComponents(item));
+            result.ItemComponentsDictionary.Add(itemKey++, SerializeComponents(item));
 
             if (!item.GetComponent<Container>())
                 continue;
@@ -101,7 +85,7 @@ public sealed class SavedPlayerState
                     favourited = innerItem.favourited
                 });
 
-                result.ComponentsDictionary.Add(itemKey++, SerializeComponents(innerItem));
+                result.ItemComponentsDictionary.Add(itemKey++, SerializeComponents(innerItem));
             }
         }
 
@@ -116,7 +100,7 @@ public sealed class SavedPlayerState
                 favourited = wearable.favourited
             });
 
-            result.ComponentsDictionary.Add(itemKey++, SerializeComponents(wearable));
+            result.ItemComponentsDictionary.Add(itemKey++, SerializeComponents(wearable));
 
             if (!wearable.GetComponent<Container>())
                 continue;
@@ -134,16 +118,14 @@ public sealed class SavedPlayerState
                     favourited = innerItem.favourited
                 });
 
-                result.ComponentsDictionary.Add(itemKey++, SerializeComponents(innerItem));
+                result.ItemComponentsDictionary.Add(itemKey++, SerializeComponents(innerItem));
             }
         }
 
-        result.BodyComponentsDictionaryUnused.Add(SerializeComponents(body));
+        result.BodyComponentsDictionary = SerializeComponents(body);
 
-        if (body.TryGetComponent(out Painkillers _))
-        {
-            result.Painkillers = new CharacterHealthPainkillerStateSyncPacket(body);
-        }
+        foreach (var limb in body.limbs)
+            result.LimbComponentsDictionary.Add(SerializeComponents(limb));
 
         result.Health = new CharacterHealthStateSyncPacket(body);
 
@@ -165,7 +147,10 @@ public sealed class SavedPlayerState
         {
             Health.Apply(body);
 
-            Painkillers.Apply(body);
+            DeserializeComponents(body.gameObject, BodyComponentsDictionary);
+
+            for (int i = 0; i < body.limbs.Length; i++)
+                DeserializeComponents(body.limbs[i].gameObject, LimbComponentsDictionary[i]);
         }
 
         if (selection.HasFlag(RestoreSelection.Inventory))
@@ -213,31 +198,7 @@ public sealed class SavedPlayerState
                     continue;
                 }
 
-                var components = ComponentsDictionary[i];
-
-                foreach (var (type, serialized) in components.Select(x => (x.Key, x.Value)))
-                {
-                    if (!item.gameObject.TryGetComponent(type, out var comp))
-                        comp = item.gameObject.AddComponent(type);
-
-                    var o = JObject.Parse(serialized);
-                    foreach (var pair in o)
-                    {
-                        try
-                        {
-                            var field = type.GetField(pair.Key);
-                            var value = pair.Value.ToObject(field.FieldType);
-                            // Drop favourited info
-                            if (field.Name.Contains("WasFavourited"))
-                                value = false;
-                            field.SetValue(comp, value);
-                        }
-                        catch (Exception ex)
-                        {
-                            Plugin.PrintWarning($"Failed to deserialize component \"{comp}\" of type {type} in item \"{item}\".\nField: {pair.Key}\nValue:{pair.Value}\n{ex.Message}\n{ex.StackTrace}\nLoading will continue.");
-                        }
-                    }
-                }
+                DeserializeComponents(item.gameObject, ItemComponentsDictionary[i]);
             }
 
             foreach (Item obj in body.GetAllItemsThorough())
@@ -294,6 +255,50 @@ public sealed class SavedPlayerState
             property.Readable = true;
             property.Writable = true;
             return property;
+        }
+    }
+
+    private static Dictionary<Type, string> SerializeComponents(Component item)
+    {
+        return item.gameObject.GetComponents<Component>()
+            .Where(x => Attribute.GetCustomAttributes(x.GetType()).Any(attr => attr is Saveable))
+            .ToDictionary(component => component.GetType(), component => JsonConvert.SerializeObject(component));
+    }
+
+    private static void DeserializeComponents(GameObject parent, Dictionary<Type, string> serializedComponents)
+    {
+        foreach (var (type, serialized) in serializedComponents.Select(x => (x.Key, x.Value)))
+        {
+            if (!parent.gameObject.TryGetComponent(type, out var comp))
+                comp = parent.gameObject.AddComponent(type);
+
+            JObject o;
+            try
+            {
+                o = JObject.Parse(serialized);
+            }
+            catch (Exception ex)
+            {
+                Plugin.PrintWarning($"Failed to deserialize component \"{type.Name}\" of GameObject \"{parent.name}\".\nLoading of other components will continue.");
+                return;
+            }
+
+            foreach (var pair in o)
+            {
+                try
+                {
+                    var field = type.GetField(pair.Key);
+                    var value = pair.Value.ToObject(field.FieldType);
+                    // Drop favourited info
+                    if (field.Name.Contains("WasFavourited"))
+                        value = false;
+                    field.SetValue(comp, value);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.PrintWarning($"Failed to update component \"{type.Name}\" of GameObject \"{parent.name}\".\nField: {pair.Key}\nValue:{pair.Value}\n{ex.Message}\n{ex.StackTrace}\nLoading of other fields will continue.");
+                }
+            }
         }
     }
 }
