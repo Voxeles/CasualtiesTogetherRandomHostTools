@@ -279,7 +279,7 @@ public sealed class SavedPlayerState
             }
             catch (Exception ex)
             {
-                Plugin.PrintWarning($"Failed to deserialize component \"{type.Name}\" of GameObject \"{parent.name}\".\nLoading of other components will continue.");
+                Plugin.PrintWarning($"Failed to deserialize component \"{type.Name}\" of GameObject \"{parent.name}\".\n{ex.Message}\n{ex.StackTrace}\nLoading of other components will continue.");
                 return;
             }
 
