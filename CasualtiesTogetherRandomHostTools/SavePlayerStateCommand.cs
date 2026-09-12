@@ -82,10 +82,7 @@ public static class SavePlayerStateCommand
             if (!Enum.TryParse(args[1], ignoreCase: true, out SavedPlayerState.RestoreSelection scope))
                 throw new Exception($"Failed to parse scope \"{args[1]}\"");
 
-            var playerName = args[2];
-            var fileName = args[3];
-
-            var filePath = Path.Combine(SaveDirPath, fileName);
+            var filePath = Path.Combine(SaveDirPath, args[3]);
             if (!File.Exists(filePath))
                 throw new Exception($"File {filePath} does not exist");
 
@@ -93,16 +90,17 @@ public static class SavePlayerStateCommand
             if (data == null)
                 throw new Exception($"Failed to read file: {filePath}");
 
-            var netBody = ServerMain.RelaxedGetBodyForCommand(playerName, false, true);
-            data.Apply(netBody, scope);
-
-            ConsoleScript.instance.LogToConsole($"Loaded {playerName}'s state!");
+            ServerMain._PerformActionOnPlayersByName(args[2], player =>
+            {
+                data.Apply(player.playerbody, scope);
+                ConsoleScript.instance.LogToConsole($"Loaded {player.playername}'s state!");
+            }, require_body: true);
 
         }, new Dictionary<int, List<string>> {
             {0, Enum.GetNames(typeof(SavedPlayerState.RestoreSelection)).Select(s => s.ToLowerInvariant()).ToList()},
             {2, _savedFiles}
         }, [
-            ("scope", "what to restore. concatenate with ',' (no space)"),
+            ("scope", "what to restore. concatenate with ',' (no spaces)"),
             ("player", "player whose state to restore"),
             ("file", "file to load")
         ]);
