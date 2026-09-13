@@ -15,8 +15,8 @@ Adds various commands for Hosts to use
 - Restore a player's state with `LoadPlayerState`
 - Has an auto-save feature where the player states are created automatically (see `SavePlayerStateAuto` command)
 - Caveats: 
-- - Favourited items are saved, but not restored upon load
-- - Crafted recipes will appear as uncrafted to the client. The server will still correctly not award INT xp bonuses for recrafting items
+- - The 'favourited' status is saved, but not restored upon load
+- - Crafted recipes will appear as uncrafted to the client. The server will still correctly not award an INT xp bonus for crafting a previously crafted item
 - - There's a small delay before all the new stats 'kick in'
 - These are caused by the limitation/quirks of the MP mod, and I cannot fix them without forcing clients to install this mod as well.
 
