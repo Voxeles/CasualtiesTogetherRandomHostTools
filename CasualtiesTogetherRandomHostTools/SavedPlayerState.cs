@@ -351,6 +351,15 @@ public sealed class SavedPlayerState
                     Plugin.PrintWarning($"Failed to update component \"{type.Name}\" of GameObject \"{parent.name}\".\nField: {pair.Key}\nValue:{pair.Value}\n{ex.Message}\n{ex.StackTrace}\nLoading of other fields will continue.");
                 }
             }
+
+            if (type == typeof(Painkillers))
+            {
+                // Destroy now if needed to prevent a small issue with the MP mod where the HealthUpdateSyncClients
+                // coro can throw an exception due to the Painkillers being suddenly null
+                var pnk = (Painkillers)comp;
+                if (pnk.opiateAmount == 0f && pnk.opiateTolerance == 0f)
+                    MonoBehaviour.Destroy(pnk);
+            }
         }
     }
 }
