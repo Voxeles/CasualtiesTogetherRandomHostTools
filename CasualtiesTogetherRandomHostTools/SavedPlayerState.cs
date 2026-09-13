@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using HarmonyLib;
 using KrokoshaCasualtiesMP;
 using KrokoshaCasualtiesUtils;
 using Newtonsoft.Json;
@@ -122,6 +121,8 @@ public sealed class SavedPlayerState
             }
         }
 
+        if (!body.gameObject.TryGetComponent<Painkillers>(out _))
+            body.gameObject.AddComponent<Painkillers>();
         result.BodyComponentsDictionary = SerializeComponents(body);
 
         foreach (var limb in body.limbs)
@@ -143,22 +144,78 @@ public sealed class SavedPlayerState
             netBody.plr.tosave_hascrafterbeforerecipes = RecipesCrafted;
         }
 
+        if (selection.HasFlag(RestoreSelection.Inventory))
+        {
+            // Destroy items now to prevent them from dropping as limbs are dismembered
+            foreach (Item item in body.GetAllItemsThorough())
+                Object.Destroy(item.gameObject);
+            body.Body_DropAllItems();
+        }
+
         if (selection.HasFlag(RestoreSelection.Health))
         {
+            // The MP mod's health packet is not just a grab bag of data, as applying it will also trigger
+            // actions and events, like bones breaking and limbs being amputated.
+            // For us this is bad, as those actions have side effects that change the values we want to restore.
+            // As such, we need to first sync an initial state, let the side effects happen, then re-sync our desired state
+            //
+            // Note that the health packet is what the MP mod actually sends to clients. Even if I use my own
+            // structures for saving and applying all this data, I am still limited by what the MP mod sends and how it behaves.
+            // If the clients interpret 'dismembered = true' as 'dismember, add pain, add shock, add bleeding',
+            // then there's nothing I can do about it besides re-setting and re-syncing the values
+
+            // The mp mod seems to think 'one limb regrown' is 'all limbs regrown'
+            // which, to be fair, is normally true
+            // Regrow them all here, then, to not regrow limbs we just dismembered
+            body.RegrowAllLimbs();
+
+            var limbPackets = new CharacterLimbHealthState[] {
+                Health.limb0, Health.limb1, Health.limb2, Health.limb3, Health.limb4,
+                Health.limb5, Health.limb6, Health.limb7, Health.limb8, Health.limb9,
+                Health.limb10, Health.limb11, Health.limb12, Health.limb13, Health.limb14
+            };
+            for (int i = 0; i < limbPackets.Length; i++)
+            {
+                var limbState = limbPackets[i];
+                var limb = body.limbs[i];
+
+                limb.dismembered = limbState.dismembered;
+
+                limb.dislocated = limbState.dislocationTimer > 0f;
+                limb.dislocationTimer = limbState.dislocationTimer;
+
+                limb.broken = limbState.boneHealTimer > 0f;
+                limb.boneHealTimer = limbState.boneHealTimer;
+            }
+
+            body.skills.STR = Health.skills.skill_STR;
+            body.skills.RES = Health.skills.skill_RES;
+            body.skills.INT = Health.skills.skill_INT;
+            body.skills.UpdateExpBoundaries();
+            body.skills.expSTR = body.skills.minSTR;
+            body.skills.expRES = body.skills.minRES;
+            body.skills.expINT = body.skills.minINT;
+
+            if (!WorldGeneration.GetRunSettingBool("infinitelaststand"))
+                body.triedRollingLastStand = Health.triedRollingLastStand;
+            Health.succesfullyRolledLastStand = false; // Do not play the animation
+
+            // Force a health sync now. The MP mod will init but also modify some of our fields,
+            // but that's okay as we'll queue as resync later
+            MedicalSync.Server_SendCharacterHealth(netBody, true);
+
+            // The packet will also modify some components
+            // Apply the packet first, then deserialize the components, then sync
             Health.Apply(body);
-
             DeserializeComponents(body.gameObject, BodyComponentsDictionary);
-
             for (int i = 0; i < body.limbs.Length; i++)
                 DeserializeComponents(body.limbs[i].gameObject, LimbComponentsDictionary[i]);
+
+            MedicalSync.Server_QueueSendCharacterHealth(netBody, true);
         }
 
         if (selection.HasFlag(RestoreSelection.Inventory))
         {
-            foreach (Item item in body.GetAllItemsThorough())
-                Object.Destroy(item.gameObject);
-            body.Body_DropAllItems();
-
             for (int i = 0; i < SavedItemList.Count; i++)
             {
                 var savedItem = SavedItemList[i];
@@ -210,11 +267,6 @@ public sealed class SavedPlayerState
                 if (si != null)
                     NetObjectRegistry.Server_QueueSync(si);
             }
-        }
-
-        if (selection.HasFlag(RestoreSelection.Health))
-        {
-            MedicalSync.Server_QueueSendCharacterHealth(netBody, true);
         }
     }
 

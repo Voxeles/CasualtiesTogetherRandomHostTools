@@ -14,7 +14,11 @@ Adds various commands for Hosts to use
 - ('Health' includes all body stats - like brain health, broken limbs, splints on body, opiates, antidepressants, skill xp, etc.)
 - Restore a player's state with `LoadPlayerState`
 - Has an auto-save feature where the player states are created automatically (see `SavePlayerStateAuto` command)
-- Caveats: Favourites items are saved but not restored upon load, and crafted recipes will appear as uncrafted to the client (limitations of the MP mod)
+- Caveats: 
+- - Favourited items are saved, but not restored upon load
+- - Crafted recipes will appear as uncrafted to the client. The server will still correctly not award INT xp bonuses for recrafting items
+- - There's a small delay before all the new stats 'kick in'
+- These are caused by the limitation/quirks of the MP mod, and I cannot fix them without forcing clients to install this mod as well.
 
 2. `RunSettings`
 - Allows you to change the run settings to any value, including out-of-bounds values
