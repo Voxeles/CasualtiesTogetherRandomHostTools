@@ -9,12 +9,15 @@ Adds various commands for Hosts to use
 
 # New Run Settings
 
-1. `Starting depth`
-- Sets the depth at which players begin each layer
-
-2. `Clear spawn location`
+1. `Clear spawn location`
 - Generates a platform for the player to spawn on
 - The platform may be enclosed by walls if there's liquid nearby
+
+2. `Starting depth`
+- Sets the depth at which players begin each layer
+
+3. `Generate block line`
+- Generates a thick line of inifirock above the starting depth, to prevent the players from going up
 
 # New Commands
 
