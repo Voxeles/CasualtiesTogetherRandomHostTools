@@ -1,58 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using KrokoshaCasualtiesMP;
 using LiteNetLib;
 using UnityEngine;
 
 namespace CasualtiesTogetherRandomHostTools;
 
+[HarmonyPatch]
 public static class RunSettingsCommand
 {
-    private static List<string> _cachedRunSettings = [
-        "unchipped",
-        "baselootdensity",
-        "lootmultiplier",
-        "basetrapdensity",
-        "trapincrease",
-        "ambientlight",
-        "timelimit",
-        "startingsupplies",
-        "xpgain",
-        "metabolismrate",
-        "healingrate",
-        "fracturepain",
-        "bleedrate",
-        "infectionspeed",
-        "infectionchance",
-        "fibrillationrate",
-        "moodnormalizationrate",
-        "bonuslimbarmor",
-        "staminaregen",
-        "attackdamage",
-        "minigamehandshake",
-        "sleepcyclespeed",
-        "encumbrancecap",
-        "strokes",
-        "braindamagefx",
-        "forcesleep",
-        "lowmoodevents",
-        "liquidpushing",
-        "disfigurement",
-        "nosleeprestrictions",
-        "infinitelaststand",
-        "traderchance",
-        "traderitemamount",
-        "traderrepoffset",
-        "itemdecayrate",
-        "lockpickprecision",
-        "layermodifierchance",
-        "timebetweenearthquakes",
-        "temperatureoffset",
-        "oreamount",
-        "debugworld",
-    ];
-
+    private static readonly List<string> _cachedRunSettings = [];
     private static bool _showedWarning = false;
     
     public static void Register()
@@ -65,10 +24,13 @@ public static class RunSettingsCommand
             var runSettings = preRunScript != null ? preRunScript.runSettings : WorldGeneration.runSettings;
 
             if (runSettings == null)
-                throw new Exception("Run settings is null!?");
+                throw new Exception("Run settings is null!");
 
             if (_cachedRunSettings.Count != runSettings.Count)
-                _cachedRunSettings = runSettings.Keys.ToList();
+            {
+                _cachedRunSettings.Clear();
+                _cachedRunSettings.AddRange(runSettings.Keys);
+            }
 
             if (args.Length < 2)
                 throw new Exception("Not enough arguments!");
@@ -154,5 +116,14 @@ public static class RunSettingsCommand
             ("new value", "optional, leave empty to read the current value")
         ]);
         Con.RegisterCommand(comm);
+    }
+
+    [HarmonyPatch(typeof(PreRunScript), nameof(PreRunScript.Awake))]
+    [HarmonyPostfix]
+    [HarmonyPriority(Priority.VeryLow)]
+    private static void ReadRunSettings(PreRunScript __instance)
+    {
+        _cachedRunSettings.Clear();
+        _cachedRunSettings.AddRange(__instance.runSettings.Keys);
     }
 }

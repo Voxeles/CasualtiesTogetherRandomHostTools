@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using KrokoshaCasualtiesMP;
 
 namespace CasualtiesTogetherRandomHostTools;
@@ -16,7 +17,7 @@ public static class SyncTimerCommand
             if (args.Length < 3)
                 throw new Exception("Not enough arguments - Expected a timer name and a decimal value!");
 
-            var value = float.Parse(args[2]);
+            var value = float.Parse(args[2], CultureInfo.InvariantCulture);
             
             switch (args[1])
             {
@@ -51,15 +52,15 @@ public static class SyncTimerCommand
                         : $"Using the default value for the rare object timer ({SyncTimerPatches.ObjectRareSyncTimeDefault})!");
                     break;
                 default:
-                    throw new Exception("Invalid timer name!");
+                    throw new Exception("Invalid timer!");
             }
 
         }, new Dictionary<int, List<string>>
         {
             {0, ["tilemap", "fluid", "objectFast", "objectNormal", "objectRare"]}
         }, [
-            ("timer", "which timer to get/set"),
-            ("sync time", "a decimal number representing the new sync time value in seconds. Set it to -1 to use the default.")
+            ("timer", "which timer to modify"),
+            ("sync time", "a decimal number representing the new sync period value in seconds. Set it to -1.0 to use the default.")
         ]);
         Con.RegisterCommand(comm);
     }

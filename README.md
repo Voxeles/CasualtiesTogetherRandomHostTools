@@ -7,6 +7,15 @@ Adds various commands for Hosts to use
 1. Download CasualtiesTogetherRandomHostTools.dll from [Releases](https://github.com/Voxeles/CasualtiesTogetherRandomHostTools/releases)
 2. Put it in "Casualties Unknown Demo/BepInEx/plugins"
 
+# New Run Settings
+
+1. `Starting depth`
+- Sets the depth at which players begin each layer
+
+2. `Clear spawn location`
+- Generates a platform for the player to spawn on
+- The platform may be enclosed by walls if there's liquid nearby
+
 # New Commands
 
 1. `SavePlayerState`
@@ -39,9 +48,23 @@ Adds various commands for Hosts to use
 
 6. `AutoTranslate`
 - Automatically translates a player's messages
-- The messages are translated for everyone, so you can turn the entire lobby spanish if you want to
+- The messages are translated for everyone, so you can turn the entire lobby Spanish if you want to
 - Supports Google translate and the DeepL API
 
-7. `KaizoEnabled`
+7. `SaveWorldTiles`
+- Saves the world's tiles and fluids
+- Load via `LoadWorldTiles`
+- Caveats:
+- - Items, buildings, and enemies are deleted on load and are not saved
+- - It _only_ saves world tiles. Nothing else.
+
+8. `SyncTimerOverride`
+- Allows you to change the default timer sync period
+- Lower values sync data more often, increasing network load but decreasing desync
+- Higher values decrease network load, but increase desync
+- Use with caution. Mainly useful for changing the default fluid sync timer period, as it is abysmally slow with multiple players and causes fluids to suddenly pop-in
+- For example, Kaizo mode changes the fluid timer frequency on layer 2 to 0.15
+
+9. `KaizoEnabled`
 - Enable the Kaizo mode
 - Adds a new 'fun' gimmick for every layer

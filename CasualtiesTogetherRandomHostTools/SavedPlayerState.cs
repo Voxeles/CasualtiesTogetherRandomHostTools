@@ -18,6 +18,11 @@ namespace CasualtiesTogetherRandomHostTools;
 // Otherwise, desync occurs where clients can't use their items for crafting, even though they have it unfavourited.
 // - Mp mod has no way of syncing crafted recipes.
 // Save and restore it. That way, INT xp for crafting is still awarded correctly, but the Client needs to remember what they crafted previously.
+// - Applying the health sync packet triggers side effects, like bleeding for amputated limbs
+// Ideally I'd use my own data structure for player data, or just aggregate all serializable fields in Body.cs and Limb.cs.
+// But I'm lazy, so instead I'll set any fields that have a side effect manually before applying the health packet to the body.
+// There are fields that need special handling anyway, so this isn't as unnecessary as it may seem.
+// Additionally, I have to sync the health packet twice, since the client applying the incoming packets will also trigger any side effects.
 
 public sealed class SavedPlayerState
 {
@@ -154,31 +159,26 @@ public sealed class SavedPlayerState
 
         if (selection.HasFlag(RestoreSelection.Health))
         {
-            // The MP mod's health packet is not just a grab bag of data, as applying it will also trigger
-            // actions and events, like bones breaking and limbs being amputated.
-            // For us this is bad, as those actions have side effects that change the values we want to restore.
-            // As such, we need to first sync an initial state, let the side effects happen, then re-sync our desired state
-            //
-            // Note that the health packet is what the MP mod actually sends to clients. Even if I use my own
-            // structures for saving and applying all this data, I am still limited by what the MP mod sends and how it behaves.
-            // If the clients interpret 'dismembered = true' as 'dismember, add pain, add shock, add bleeding',
-            // then there's nothing I can do about it besides re-setting and re-syncing the values
+            // We might have to modify this later, make a copy it
+            // Seems bad for a method named 'Apply' to modify the stored data, even if it doesn't matter for our purposes
+            var health = Health;
 
             // The mp mod seems to think 'one limb regrown' is 'all limbs regrown'
             // which, to be fair, is normally true
-            // Regrow them all here, then, to not regrow limbs we just dismembered
+            // Regrow them all here to avoid regrowing limbs as we update their 'dismembered' status
             body.RegrowAllLimbs();
 
-            var limbPackets = new CharacterLimbHealthState[] {
-                Health.limb0, Health.limb1, Health.limb2, Health.limb3, Health.limb4,
-                Health.limb5, Health.limb6, Health.limb7, Health.limb8, Health.limb9,
-                Health.limb10, Health.limb11, Health.limb12, Health.limb13, Health.limb14
+            var limbPackets = new[] {
+                health.limb0, health.limb1, health.limb2, health.limb3, health.limb4,
+                health.limb5, health.limb6, health.limb7, health.limb8, health.limb9,
+                health.limb10, health.limb11, health.limb12, health.limb13, health.limb14
             };
             for (int i = 0; i < limbPackets.Length; i++)
             {
                 var limbState = limbPackets[i];
                 var limb = body.limbs[i];
 
+                // All of these can trigger side effects in health.Apply(), so they need to be set beforehand
                 limb.dismembered = limbState.dismembered;
 
                 limb.dislocated = limbState.dislocationTimer > 0f;
@@ -188,29 +188,39 @@ public sealed class SavedPlayerState
                 limb.boneHealTimer = limbState.boneHealTimer;
             }
 
-            body.skills.STR = Health.skills.skill_STR;
-            body.skills.RES = Health.skills.skill_RES;
-            body.skills.INT = Health.skills.skill_INT;
+            // Avoid possible side effects from skills updating
+            body.skills.STR = health.skills.skill_STR;
+            body.skills.RES = health.skills.skill_RES;
+            body.skills.INT = health.skills.skill_INT;
             body.skills.UpdateExpBoundaries();
             body.skills.expSTR = body.skills.minSTR;
             body.skills.expRES = body.skills.minRES;
             body.skills.expINT = body.skills.minINT;
 
-            if (!WorldGeneration.GetRunSettingBool("infinitelaststand"))
-                body.triedRollingLastStand = Health.triedRollingLastStand;
-            Health.succesfullyRolledLastStand = false; // Do not play the animation
+            // Will play the last stand animation if it's true, always set it to false
+            // Duplicate last stands are prevented by 'triedRollingLastStand'
+            // This field seems to be used for flavor text on the death stats screen anyway
+            health.succesfullyRolledLastStand = false;
 
-            // Force a health sync now. The MP mod will init but also modify some of our fields,
-            // but that's okay as we'll queue as resync later
+            // Game handles this setting in a pretty dumb way. If it's true, 'triedRollingLastStand' should always be false
+            if (WorldGeneration.GetRunSettingBool("infinitelaststand"))
+                body.triedRollingLastStand = health.triedRollingLastStand = false;
+            else
+                body.triedRollingLastStand = health.triedRollingLastStand;
+
+            // Send a health sync now
+            // Client-side, the MP mod will trigger some side effects mentioned above (we only prevented them server-side, after all),
+            // but that's okay as we'll queue another sync later
             MedicalSync.Server_SendCharacterHealth(netBody, true);
 
-            // The packet will also modify some components
-            // Apply the packet first, then deserialize the components, then sync
-            Health.Apply(body);
+            // health.Apply() will also modify some components
+            // Apply the stored data first, then deserialize the components, then sync
+            health.Apply(body);
             DeserializeComponents(body.gameObject, BodyComponentsDictionary);
             for (int i = 0; i < body.limbs.Length; i++)
                 DeserializeComponents(body.limbs[i].gameObject, LimbComponentsDictionary[i]);
 
+            // Queue a final sync
             MedicalSync.Server_QueueSendCharacterHealth(netBody, true);
         }
 

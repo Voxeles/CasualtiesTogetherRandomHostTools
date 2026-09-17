@@ -157,7 +157,7 @@ internal static class KaizoLayer1Patches
                 while (timer < 0.02f)
                 {
                     yield return null;
-                    timer += Time.deltaTime;
+                    timer += Time.unscaledDeltaTime;
                 }
                 timer = 0f;
             }
