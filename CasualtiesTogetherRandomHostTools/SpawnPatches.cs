@@ -59,10 +59,11 @@ public static class SpawnPatches
         }
 
         {
+            var leftWallX = blockPosCopyShutUpRoslyn.x + minX - 1;
             var addLeftWall = false;
             addLeftWall |= kaizoAlwaysAddWalls;
             for (int y = minY; y <= maxY; ++y)
-                addLeftWall |= fluid.GetLiquid(minX - 1, y) is 1 or 2 or 3 or 6;
+                addLeftWall |= fluid.GetLiquid(leftWallX, blockPosCopyShutUpRoslyn.y + y) != 0;
 
             if (addLeftWall)
             {
@@ -71,10 +72,11 @@ public static class SpawnPatches
             }
         }
         {
+            var rightWallX = blockPosCopyShutUpRoslyn.x + maxX + 1;
             var addRightWall = false;
             addRightWall |= kaizoAlwaysAddWalls;
             for (int y = minY; y <= maxY; ++y)
-                addRightWall |= fluid.GetLiquid(maxX + 1, y) is 1 or 2 or 3 or 6;
+                addRightWall |= fluid.GetLiquid(rightWallX, blockPosCopyShutUpRoslyn.y + y) != 0;
 
             if (addRightWall)
             {
@@ -83,10 +85,11 @@ public static class SpawnPatches
             }
         }
         {
+            var roofY = blockPosCopyShutUpRoslyn.y + maxY + 1;
             var addRoof = false;
             addRoof |= kaizoAlwaysAddRoof;
             for (int x = minX; x <= maxX; ++x)
-                addRoof |= fluid.GetLiquid(x, maxY + 1) is 1 or 2 or 3 or 6;
+                addRoof |= fluid.GetLiquid(blockPosCopyShutUpRoslyn.x + x, roofY) != 0;
 
             if (addRoof)
             {
