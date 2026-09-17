@@ -62,7 +62,7 @@ public static class SpawnPatches
             var addLeftWall = false;
             addLeftWall |= kaizoAlwaysAddWalls;
             for (int y = minY; y <= maxY; ++y)
-                addLeftWall |= fluid.GetLiquid(minX - 1, y) != 0;
+                addLeftWall |= fluid.GetLiquid(minX - 1, y) is 1 or 2 or 3 or 6;
 
             if (addLeftWall)
             {
@@ -74,7 +74,7 @@ public static class SpawnPatches
             var addRightWall = false;
             addRightWall |= kaizoAlwaysAddWalls;
             for (int y = minY; y <= maxY; ++y)
-                addRightWall |= fluid.GetLiquid(maxX + 1, y) != 0;
+                addRightWall |= fluid.GetLiquid(maxX + 1, y) is 1 or 2 or 3 or 6;
 
             if (addRightWall)
             {
@@ -86,7 +86,7 @@ public static class SpawnPatches
             var addRoof = false;
             addRoof |= kaizoAlwaysAddRoof;
             for (int x = minX; x <= maxX; ++x)
-                addRoof |= fluid.GetLiquid(x, maxY + 1) != 0;
+                addRoof |= fluid.GetLiquid(x, maxY + 1) is 1 or 2 or 3 or 6;
 
             if (addRoof)
             {
