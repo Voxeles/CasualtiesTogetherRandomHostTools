@@ -76,6 +76,8 @@ internal static class ConPatches
 
             SaladSplitter.MaximumSplitCount = int.Parse(args[1], CultureInfo.InvariantCulture);
 
+            Con.con.LogToConsole($"Set the maximum split count to {SaladSplitter.MaximumSplitCount}!");
+
         }, new Dictionary<int, List<string>> {
             {0, ["1"]}
         }, [
