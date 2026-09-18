@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using HarmonyLib;
 using KrokoshaCasualtiesMP;
 using UnityEngine.SceneManagement;
@@ -65,6 +66,21 @@ internal static class ConPatches
             SceneManager.LoadScene("SampleScene");
             
         }, null, null);
+        Con.RegisterCommand(comm);
+
+        comm = new Command("SaladSplitCount", "Maximum amount of times that salads can split when kaizo mode is enabled", args =>
+        {
+            Con.ConFailIfNetworkNotRunning();
+            Con.ConFailIfNetworkIsRunningAndIsClient();
+            Con.con.CheckArgumentCount(args, 1);
+
+            SaladSplitter.MaximumSplitCount = int.Parse(args[1], CultureInfo.InvariantCulture);
+
+        }, new Dictionary<int, List<string>> {
+            {0, ["1"]}
+        }, [
+            ("integer", "maximum amount of splits")
+        ]);
         Con.RegisterCommand(comm);
     }
 }
