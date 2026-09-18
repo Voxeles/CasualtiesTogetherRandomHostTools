@@ -70,4 +70,9 @@ Adds various commands for Hosts to use
 
 9. `KaizoEnabled`
 - Enable the Kaizo mode
-- Adds a new 'fun' gimmick for every layer
+- Adds a new _fun_ gimmick for every layer
+- - Layer 1: Corrupted world
+- - Layer 2: Melting
+- - Layer 3: Gunpowder rocks!
+- - Layer 4: Sound check
+- - Layer 5: Tower of Babel + Mitosis
