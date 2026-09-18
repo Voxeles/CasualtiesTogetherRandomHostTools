@@ -15,6 +15,8 @@ namespace CasualtiesTogetherRandomHostTools;
 internal static class FinalDestinationPatch
 {
     public static bool ShouldDoTheOverride = false;
+    public static bool ActuallyDoBattlefield = false;
+    public static int Scaling = 1;
 
     [HarmonyPatch(typeof(WorldGeneration), nameof(WorldGeneration.GenerateWorld))]
     [HarmonyPrefix]
@@ -41,11 +43,18 @@ internal static class FinalDestinationPatch
             inst.SetLoadingText("gencreatingterrain");
             yield return null;
             var center = inst.WorldToBlockPos(new(0, -2));
-            inst.DrawLine(center + new Vector2Int(-40, 0), center + new Vector2Int(40, 0), 3, 14);
-            inst.DrawLine(center + new Vector2Int(-37, -3), center + new Vector2Int(37, -3), 2, 14);
-            inst.DrawLine(center + new Vector2Int(-30, -5), center + new Vector2Int(30, -5), 1, 14);
-            inst.DrawLine(center + new Vector2Int(-20, -6), center + new Vector2Int(20, -6), 1, 14);
-            inst.DrawLine(center + new Vector2Int(-10, -7), center + new Vector2Int(10, -7), 1, 14);
+            inst.DrawLine(center + new Vector2Int(-40 * Scaling, 0), center + new Vector2Int(40 * Scaling, 0), 3, 14);
+            inst.DrawLine(center + new Vector2Int(-37 * Scaling, -3), center + new Vector2Int(37 * Scaling, -3), 2, 14);
+            inst.DrawLine(center + new Vector2Int(-30 * Scaling, -5), center + new Vector2Int(30 * Scaling, -5), 1, 14);
+            inst.DrawLine(center + new Vector2Int(-20 * Scaling, -6), center + new Vector2Int(20 * Scaling, -6), 1, 14);
+            inst.DrawLine(center + new Vector2Int(-10 * Scaling, -7), center + new Vector2Int(10 * Scaling, -7), 1, 14);
+
+            if (ActuallyDoBattlefield)
+            {
+                inst.DrawLine(center + new Vector2Int(-30 * Scaling, 9), center + new Vector2Int(-10 * Scaling, 9), 1, 14);
+                inst.DrawLine(center + new Vector2Int(10 * Scaling, 9), center + new Vector2Int(30 * Scaling, 9), 1, 14);
+                inst.DrawLine(center + new Vector2Int(-10 * Scaling, 17), center + new Vector2Int(10 * Scaling, 17), 1, 14);
+            }
         }
     }
 
@@ -78,6 +87,8 @@ internal static class FinalDestinationPatch
             if (!ShouldDoTheOverride) 
                 return;
             ShouldDoTheOverride = false;
+            ActuallyDoBattlefield = false;
+            Scaling = 1;
             WorldgenPatches.CreateSkyBackground(Color.white, 2f);
             WorldGeneration.world.gameObject.AddComponent<KillPlayersAtBottomAndHideSavePanel>();
         }

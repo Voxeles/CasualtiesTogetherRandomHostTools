@@ -49,11 +49,16 @@ internal static class ConPatches
         ]);
         Con.RegisterCommand(comm);
 
-        comm = new Command("FinalDestination", "\"No crafting, voyager only, final destination\"", _ =>
+        comm = new Command("FinalDestination", "\"No crafting, voyager only, final destination\"", args =>
         {
             Con.ConFailIfNetworkIsRunningAndIsClient();
             Con.ConFailIfNotInMainMenu();
-            
+
+            if (args.Length > 1)
+                FinalDestinationPatch.ActuallyDoBattlefield = bool.Parse(args[1]);
+            if (args.Length > 2)
+                FinalDestinationPatch.Scaling = bool.Parse(args[2]) ? 2 : 1;
+
             WorldgenPatches._CheckIfCanLoadAWorld();
             WorldgenPatches.SetTutorialPlayerPrefs(false);
             WorldgenPatches.earthquake_enabled = false;
@@ -65,7 +70,7 @@ internal static class ConPatches
             FinalDestinationPatch.ShouldDoTheOverride = true;
             SceneManager.LoadScene("SampleScene");
             
-        }, null, null);
+        }, null, ("bool", "Add platforms (battlefield)"), ("bool", "Double the width"));
         Con.RegisterCommand(comm);
 
         comm = new Command("SaladSplitCount", "Maximum amount of times that salads can split when kaizo mode is enabled", args =>
