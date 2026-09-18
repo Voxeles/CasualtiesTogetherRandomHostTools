@@ -17,8 +17,10 @@ public static class WorldCorrupt
         {
             for (var by = 0; by < world.height / ChunkSize; by++)
             {
-                var tx = Random.RandomRangeInt(0, 3) * (Random.value < 0.5 ? -1 : 1);
-                var ty = Random.RandomRangeInt(0, 3) * (Random.value < 0.5 ? -1 : 1);
+                if (Random.value < 0.6f)
+                    continue;
+                var tx = Random.RandomRangeInt(0, 2) * (Random.value < 0.5f ? -1 : 1);
+                var ty = Random.RandomRangeInt(0, 2) * (Random.value < 0.5f ? -1 : 1);
                 if (bx + tx < 0 || (bx + tx) * ChunkSize + ChunkSize >= world.width)
                     tx *= -1;
                 if (by + ty < 0 || (by + ty) * ChunkSize + ChunkSize >= world.height)
