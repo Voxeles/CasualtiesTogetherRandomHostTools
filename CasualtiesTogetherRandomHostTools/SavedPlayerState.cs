@@ -197,6 +197,10 @@ public sealed class SavedPlayerState
             body.skills.expRES = body.skills.minRES;
             body.skills.expINT = body.skills.minINT;
 
+            health.skills.skill_exp_STR = ValidateExp("STR", health.skills.skill_exp_STR, health.skills.skill_STR);
+            health.skills.skill_exp_RES = ValidateExp("RES", health.skills.skill_exp_RES, health.skills.skill_RES);
+            health.skills.skill_exp_INT = ValidateExp("INT", health.skills.skill_exp_INT, health.skills.skill_INT);
+
             // Will play the last stand animation if it's true, always set it to false
             // Duplicate last stands are prevented by 'triedRollingLastStand'
             // This field seems to be used for flavor text on the death stats screen anyway
@@ -371,5 +375,21 @@ public sealed class SavedPlayerState
                     MonoBehaviour.Destroy(pnk);
             }
         }
+    }
+
+    private static ushort ValidateExp(string name, ushort exp, ushort level)
+    {
+        var lowerBound = Skills.GetExperienceForLevel(level);
+        var upperBound = Skills.GetExperienceForLevel(level + 1);
+
+        if (exp >= lowerBound && exp < upperBound)
+            return exp;
+
+        Plugin.PrintWarning(
+            $"Experience amount for {name} is incorrect." +
+            $"\n\tAt level {level}, the experience amount \"{exp}\" should be between \"{lowerBound}\" and \"{upperBound - 1}\"." +
+            $"\n\tResetting {name} exp to the minimum amount for level {level}.");
+
+        return lowerBound < 0 ? (ushort)0 : (ushort)lowerBound;
     }
 }
