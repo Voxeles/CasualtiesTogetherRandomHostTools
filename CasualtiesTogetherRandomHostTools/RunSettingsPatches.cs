@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Reflection.Emit;
 using HarmonyLib;
+using KrokoshaCasualtiesMP;
 
 namespace CasualtiesTogetherRandomHostTools;
 
@@ -100,5 +102,25 @@ public static class RunSettingsPatches
         }
 
         return -1;
+    }
+
+    [HarmonyPatch(typeof(WorldgenPatches), nameof(WorldgenPatches.CompileRunSettings))]
+    [HarmonyTranspiler]
+    private static IEnumerable<CodeInstruction> DoNotSendCustomSettingsPatch(IEnumerable<CodeInstruction> instructions)
+    {
+        return new CodeMatcher(instructions)
+            .MatchForward(false,
+                new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(SaveSystem), nameof(SaveSystem.DicToTupleList))))
+            .ThrowIfInvalid($"{nameof(DoNotSendCustomSettingsPatch)} could not find a match!")
+            .Advance(1)
+            .Insert(
+                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(RunSettingsPatches), nameof(RemoveCustomSettings))))
+            .InstructionEnumeration();
+    }
+
+    private static List<(string, object)> RemoveCustomSettings(List<(string, object)> settings)
+    {
+        settings.RemoveAll(setting => SettingsDict.ContainsKey(setting.Item1));
+        return settings;
     }
 }
