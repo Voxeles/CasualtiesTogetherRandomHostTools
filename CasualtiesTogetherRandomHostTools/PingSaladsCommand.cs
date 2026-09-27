@@ -67,7 +67,7 @@ public class SaladTrackerComponent : MonoBehaviour
     {
         _gb = new GameObject();
         _sr = _gb.AddComponent<SpriteRenderer>();
-        _sr.sprite = KrokoshaCoopModAssets.arrowicon;
+        _sr.sprite = CoopModAssets.arrowicon;
         _sr.color = new Color(0f, 1f, 0f, 1f);
         _sr.sortingOrder = 6010;
         _gb.transform.localScale = Vector3.one * 8f;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using KrokoshaCasualtiesMP;
 using LiteNetLib;
@@ -45,6 +44,16 @@ public static class RunSettingsCommand
                 return;
             }
 
+            if (preRunScript == null && !_showedWarning)
+            {
+                Con.con.LogToConsole($"<color=yellow>WARNING: Changing the run settings mid-run can cause desync issues until you reload the save!</color>");
+                Con.con.LogToConsole($"<color=yellow>The recommended use for this command is on the main menu before starting new runs, or at the start of a new layer.</color>");
+                Con.con.LogToConsole($"<color=yellow>Change the settings using 'RunSettings', then save the game using 'saveandquit' and load the save to apply the new settings.</color>");
+                Con.con.LogToConsole($"<color=yellow>Nothing has been changed. Retype this command once you understand how to use it.</color>");
+                _showedWarning = true;
+                return;
+            }
+
             object newValue;
             switch (value)
             {
@@ -78,7 +87,6 @@ public static class RunSettingsCommand
 
             if (preRunScript != null)
             {
-                preRunScript.runSettings = runSettings;
                 preRunScript.UpdateAllSettingDisplays();
 
                 if (Net.is_server)
@@ -86,25 +94,17 @@ public static class RunSettingsCommand
                     var perfs = new WorldgenPatches.RunPrefs();
                     perfs.ReadPrefs();
                     var settings = WorldgenPatches.CompileRunSettings();
+
                     var writer = Net.CreateWriter(NetmsgId.RunSettingsSync);
                     writer.Put(perfs);
-                    writer.Put(settings);
+                    writer.Put(settings, true);
                     Net.Server_SendToClients(DeliveryMethod.ReliableUnordered, writer, ServerMain.AllClientIdsExceptHost);
                 }
             }
             else
             {
-                if (!_showedWarning)
-                {
-                    Con.con.LogToConsole($"<color=yellow>WARNING: Changing the run settings mid-run can cause desync issues until you reload the save!</color>");
-                    Con.con.LogToConsole($"<color=yellow>The recommended use for this command is on the main menu before starting new runs, or at the start of a new layer.</color>");
-                    Con.con.LogToConsole($"<color=yellow>Change the settings using 'RunSettings', then save the game using 'saveandquit' and load the save to apply the new settings.</color>");
-                    Con.con.LogToConsole($"<color=yellow>Nothing has been changed. Retype this command once you understand how to use it.</color>");
-                    _showedWarning = true;
-                    return;
-                }
-                WorldGeneration.runSettings = runSettings;
-                // How to sync?
+                // Don't even bother syncing anything if we're in-world
+                // Some fields are cached on run start so we'd end up in a half-working state anyway
             }
             
             Con.con.LogToConsole($"Set {setting}: {newValue}");
