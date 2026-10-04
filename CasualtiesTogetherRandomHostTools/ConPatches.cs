@@ -16,6 +16,7 @@ internal static class ConPatches
         AutoTranslateCommand.Register();
         PingSaladsCommand.Register();
         SyncTimerCommand.Register();
+        TimedCommand.Register();
         SavePlayerStateCommand.Register();
         SaveWorldTilesCommand.Register();
         
