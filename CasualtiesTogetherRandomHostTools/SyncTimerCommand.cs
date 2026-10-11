@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using KrokoshaCasualtiesMP;
+using Together;
 
 namespace CasualtiesTogetherRandomHostTools;
 

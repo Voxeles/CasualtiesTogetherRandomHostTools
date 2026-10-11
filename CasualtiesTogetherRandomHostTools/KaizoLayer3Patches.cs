@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
-using KrokoshaCasualtiesMP;
+using Together;
 using UnityEngine;
 
 namespace CasualtiesTogetherRandomHostTools;

@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using CasualtiesTogetherUtils;
 using HarmonyLib;
-using KrokoshaCasualtiesMP;
-using KrokoshaCasualtiesUtils;
+using Together;
 using LiteNetLib;
 using UnityEngine;
 
@@ -110,8 +110,8 @@ internal static class FinalDestinationPatch
     {
         if (!Util.IsInWorld()
             || !GameObject.FindAnyObjectByType<KillPlayersAtBottomAndHideSavePanel>()
-            || !NetPlayer.TryGetPlayerFromClientId(clientId, out var plr)
-            || plr.is_local)
+            || !ScavPlayer.TryGetPlayerFromClientId(clientId, out var plr)
+            || plr.IsLocal)
             return;
 
         plr.StartCoroutine(SyncBottomHalfTiles(clientId));
@@ -164,7 +164,7 @@ public class KillPlayersAtBottomAndHideSavePanel : MonoBehaviour
             return;
         _timer = 0f;
         
-        foreach (var plr in NetPlayer.ClientIdToPlayerDict.Values)
+        foreach (var plr in ScavPlayer.ClientIdToPlayerDict.Values)
         {
             if (plr.body == null
                 || !plr.body.rb.simulated 

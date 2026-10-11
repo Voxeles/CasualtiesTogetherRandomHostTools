@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
-using KrokoshaCasualtiesMP;
-using KrokoshaCasualtiesUtils;
+using Together;
+using CasualtiesTogetherUtils;
 using LiteNetLib;
 using UnityEngine;
 
@@ -130,8 +130,8 @@ internal static class KaizoLayer1Patches
         if (!Plugin.IsKaizoEnabled
             || !Util.IsInWorld()
             || WorldGeneration.world.biomeDepth != 1
-            || !NetPlayer.TryGetPlayerFromClientId(clientId, out var plr)
-            || plr.is_local)
+            || !ScavPlayer.TryGetPlayerFromClientId(clientId, out var plr)
+            || plr.IsLocal)
             return;
 
         plr.StartCoroutine(SyncAllLiquidChunks(clientId));

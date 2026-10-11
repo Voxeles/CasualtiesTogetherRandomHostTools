@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using KrokoshaCasualtiesMP;
+using Together;
 using UnityEngine;
 
 namespace CasualtiesTogetherRandomHostTools;
@@ -61,11 +61,5 @@ internal class StalactiteExploder : MonoBehaviour
             boneBreakChance = 0.0f,
             disfigureChance = 0f
         });
-        
-        if (Net.is_client)
-            return;
-
-        foreach (var netBody in NetBody.GetBodiesInRadius(transform.position, 5f))
-            netBody.Server_RemindPlayersCurrentState(keep_velocity: true, reliable: true);
     }
 }

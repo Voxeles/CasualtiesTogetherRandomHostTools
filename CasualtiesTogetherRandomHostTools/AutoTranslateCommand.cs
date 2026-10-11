@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using KrokoshaCasualtiesMP;
+using Together;
 
 namespace CasualtiesTogetherRandomHostTools;
 
@@ -85,13 +85,13 @@ public static class AutoTranslateCommand
             Con.ConFailIfNetworkIsRunningAndIsClient();
             Con.con.CheckArgumentCount(args, 1);
 
-            var (success, errMsg) = ServerMain._PerformActionOnPlayersByName(args[1], plr =>
+            var (success, errMsg) = Con.PerformActionOnPlayersByName(args[1], plr =>
             {
                 var added = AutoTranslate.Instance.DoNotTranslateList.Add(plr);
                 Con.con.LogToConsole(added
-                    ? $"Player {plr.playername} excluded from auto-translation"
-                    : $"Player {plr.playername} already excluded from auto-translation");
-            });
+                    ? $"Player {plr.playerName} excluded from auto-translation"
+                    : $"Player {plr.playerName} already excluded from auto-translation");
+            }, allow_macros: true, Con.GetCommandCallerPlayer(), require_body: true, onlyOne: false);
             if (!success)
                 Con.con.LogToConsole($"ERROR: AutoTranslateExclude: {args[1]}  - {errMsg}");
 
@@ -104,13 +104,13 @@ public static class AutoTranslateCommand
             Con.ConFailIfNetworkIsRunningAndIsClient();
             Con.con.CheckArgumentCount(args, 1);
 
-            var (success, errMsg) = ServerMain._PerformActionOnPlayersByName(args[1], plr =>
+            var (success, errMsg) = Con.PerformActionOnPlayersByName(args[1], plr =>
             {
                 var removed = AutoTranslate.Instance.DoNotTranslateList.Remove(plr);
                 Con.con.LogToConsole(removed
-                    ? $"Player {plr.playername} included in auto-translation"
-                    : $"Player {plr.playername} already included in auto-translation");
-            });
+                    ? $"Player {plr.playerName} included in auto-translation"
+                    : $"Player {plr.playerName} already included in auto-translation");
+            }, allow_macros: true, Con.GetCommandCallerPlayer(), require_body: true, onlyOne: false);
             if (!success)
                 Con.con.LogToConsole($"ERROR: AutoTranslateInclude: {args[1]}  - {errMsg}");
 

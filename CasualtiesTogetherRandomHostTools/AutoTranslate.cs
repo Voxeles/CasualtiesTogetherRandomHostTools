@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using KrokoshaCasualtiesMP;
+using Together;
 using Newtonsoft.Json;
 
 namespace CasualtiesTogetherRandomHostTools;
@@ -17,7 +17,7 @@ public class AutoTranslate
     public ConfigEntry<string> ConfigAutoTranslateBackend;
     public ConfigEntry<string> ConfigAutoTranslateAuthHeader;
     public ConfigEntry<string> ConfigAutoTranslateTargetLang;
-    public HashSet<NetPlayer> DoNotTranslateList = [];
+    public HashSet<ScavPlayer> DoNotTranslateList = [];
     public bool ForceDisableWhenKaizo = false;
     private readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(5.0) };
     
@@ -27,7 +27,7 @@ public class AutoTranslate
     {
         if (Instance != null)
             return;
-        NetPlayer.OnPlayerLeft += OnPlayerLeft;
+        ScavPlayer.OnPlayerLeft += OnPlayerLeft;
         Instance = this;
         ConfigAutoTranslateEnabled = plugin.Config.Bind(
             "AutoTranslate",
@@ -51,7 +51,7 @@ public class AutoTranslate
             "Target language\nFor Google translate, see: https://docs.cloud.google.com/translate/docs/languages\nFor DeepL, see: https://developers.deepl.com/docs/getting-started/supported-languages");
     }
 
-    public bool ShouldTranslate(NetPlayer player)
+    public bool ShouldTranslate(ScavPlayer player)
     {
         if (!ConfigAutoTranslateEnabled.Value)
             return false;
@@ -205,7 +205,7 @@ public class AutoTranslate
         };
     }
     
-    private static void OnPlayerLeft(NetPlayer player)
+    private static void OnPlayerLeft(ScavPlayer player)
     {
         Instance?.DoNotTranslateList.Remove(player);
     }

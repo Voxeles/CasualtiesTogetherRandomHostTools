@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using KrokoshaCasualtiesMP;
+using Together;
 
 namespace CasualtiesTogetherRandomHostTools;
 

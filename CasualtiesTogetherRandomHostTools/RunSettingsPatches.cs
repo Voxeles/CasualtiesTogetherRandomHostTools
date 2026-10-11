@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
-using KrokoshaCasualtiesMP;
+using Together;
 
 namespace CasualtiesTogetherRandomHostTools;
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using HarmonyLib;
-using KrokoshaCasualtiesMP;
+using Together;
 using UnityEngine.SceneManagement;
 
 namespace CasualtiesTogetherRandomHostTools;
@@ -15,7 +15,6 @@ internal static class ConPatches
         ExplosionOverrideCommand.Register();
         AutoTranslateCommand.Register();
         PingSaladsCommand.Register();
-        RunSettingsCommand.Register();
         SyncTimerCommand.Register();
         SavePlayerStateCommand.Register();
         SaveWorldTilesCommand.Register();
@@ -31,8 +30,8 @@ internal static class ConPatches
                     Plugin.IsKaizoEnabled = true;
                     // HACK: Workaround for a bug where the solar flare modifier persist after layer change
                     // Force UnchippedIsIndividual to true
-                    KrokoshaScavMultiplayer.rules.UnchippedIsIndividual = true;
-                    KrokoshaScavMultiplayer.ApplyGameRules();
+                    // Multiplayer.rules.UnchippedIsIndividual = true;
+                    // Multiplayer.ApplyGameRules();
                     Con.con.LogToConsole("Enabled kaizo mode!");
                     break;
                 case "false":
@@ -63,8 +62,8 @@ internal static class ConPatches
             WorldgenPatches.SetTutorialPlayerPrefs(false);
             WorldgenPatches.earthquake_enabled = false;
             WorldgenPatches.SetRadlinePlayerPrefs(false);
-            WorldgenPatches.runsettings["ambientlight"] = 2;
-            if (KrokoshaScavMultiplayer.IsNetworkActiveAndIsServer())
+            WorldgenPatches.runSettings["ambientlight"] = 2;
+            if (Multiplayer.IsNetworkActiveAndIsServer())
                 ServerMain.Server_Announce_GAME_START();
 
             FinalDestinationPatch.ShouldDoTheOverride = true;

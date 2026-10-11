@@ -1,6 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
-using KrokoshaCasualtiesMP;
+﻿using System.Threading.Tasks;
+using LiteNetLib.Utils;
+using Together;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -8,7 +8,7 @@ namespace CasualtiesTogetherRandomHostTools;
 
 public static class KaizoAutoTranslate
 {
-    public static bool ShouldTranslateNearSalad(AutoTranslate translate, NetPlayer player, out float saladDist)
+    public static bool ShouldTranslateNearSalad(AutoTranslate translate, ScavPlayer player, out float saladDist)
     {
         saladDist = 0f;
         if (!Plugin.IsKaizoEnabled || translate.ForceDisableWhenKaizo)
@@ -36,9 +36,9 @@ public static class KaizoAutoTranslate
         return saladDist < 102;
     }
 
-    public static async Task DoTranslateNearSaladAsync(AutoTranslate translate, NetPlayer plr, string message, float dist)
+    public static async Task DoTranslateNearSaladAsync(AutoTranslate translate, ScavPlayer plr, string message, float dist, NetDataReader reader)
     {
-        ChatTranslate.SendPlayerMessageRestored(plr, dist switch
+        var translated = dist switch
         {
             < 22 => await translate.TranslateAsync(message, AutoTranslate.Language.Chinese) ?? TextScramble(message, 1f),
             < 42 => await translate.TranslateAsync(message, AutoTranslate.Language.Finnish) ?? TextScramble(message, 0.5f),
@@ -46,7 +46,8 @@ public static class KaizoAutoTranslate
             < 82 => await translate.TranslateAsync(message, AutoTranslate.Language.Dutch) ?? TextScramble(message, 0.2f),
             < 102 => await translate.TranslateAsync(message, AutoTranslate.Language.Portuguese) ?? TextScramble(message, 0.1f),
             _ => null
-        });
+        };
+        ChatTranslate.SendPlayerMessageRestored(plr, translated, reader);
     }
     
     private static string TextScramble(string message, float chance)

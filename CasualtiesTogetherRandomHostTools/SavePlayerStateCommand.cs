@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using KrokoshaCasualtiesMP;
-using Newtonsoft.Json;
+using Together;
 using UnityEngine;
 
 namespace CasualtiesTogetherRandomHostTools;
@@ -44,9 +43,9 @@ public static class SavePlayerStateCommand
             Directory.CreateDirectory(dirPath);
             var timeStr = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
 
-            ServerMain._PerformActionOnBodiesByName(args[1], body =>
+            Con.PerformActionOnBodiesByName(args[1], body =>
             {
-                var playername = SanitizePlayerName(body.playername);
+                var playername = SanitizePlayerName(body.playerName);
                 var fileName = $"{playername}-{timeStr}.json";
                 var file = Path.Combine(dirPath, fileName);
                 var data = SavedPlayerState.Create(body);
@@ -60,8 +59,9 @@ public static class SavePlayerStateCommand
                 }
 
                 File.WriteAllBytes(file, Encoding.UTF8.GetBytes(str));
-                Con.con.LogToConsole($"Wrote {body.playername} state to file: {file}");
-            });
+                Con.con.LogToConsole($"Wrote {body.playerName} state to file: {file}");
+
+            }, allow_macros: true, only_players: true, Con.GetCommandCallerPlayer(), onlyOne: false);
 
             UpdateFiles();
 
@@ -90,11 +90,12 @@ public static class SavePlayerStateCommand
             if (data == null)
                 throw new Exception($"Failed to read file: {filePath}");
 
-            ServerMain._PerformActionOnPlayersByName(args[2], player =>
+            Con.PerformActionOnBodiesByName(args[2], body =>
             {
-                data.Apply(player.playerbody, scope);
-                ConsoleScript.instance.LogToConsole($"Loaded {player.playername}'s state!");
-            }, require_body: true);
+                data.Apply(body, scope);
+                ConsoleScript.instance.LogToConsole($"Loaded {body.playerName}'s state!");
+
+            }, allow_macros: true, only_players: true, Con.GetCommandCallerPlayer(), onlyOne: false);
 
         }, new Dictionary<int, List<string>> {
             {0, Enum.GetNames(typeof(SavedPlayerState.RestoreSelection)).Select(s => s.ToLowerInvariant()).ToList()},
@@ -179,27 +180,6 @@ public static class SavePlayerStateCommand
             ("value", "new value, leave blank to read current value")
         ]);
         Con.RegisterCommand(comm);
-
-        // comm = new Command("FuckUpPlayerName", "Replaces all underscores with spaces", args =>
-        // {
-        //     Con.ConFailIfNetworkIsRunningAndIsClient();
-        //     Con.ConFailIfNetworkNotRunning();
-        //     Con.con.CheckArgumentCount(args, 1);
-        //
-        //     string plrname = args[1];
-        //     string newname = args[1].Replace('_', ' ');
-        //     var tuple = ServerMain._PerformActionOnPlayersByName(plrname, plr =>
-        //     {
-        //         Con.con.LogToConsole($"Renamed {plr} to {newname}");
-        //         plr.nameIsCustom = true;
-        //         plr.ApplyNameAndColor(newname, plr.plrcolor);
-        //     });
-        //     if (tuple.Item1)
-        //         return;
-        //     Con.con.LogToConsole("Rename error: " + tuple.Item2);
-        //
-        // }, null, ("player", ""));
-        // Con.RegisterCommand(comm);
     }
 
     private static readonly HashSet<char> InvalidChars = [' ', '<', '>', ':', '"', '/', '\\', '|', '?', '*'];

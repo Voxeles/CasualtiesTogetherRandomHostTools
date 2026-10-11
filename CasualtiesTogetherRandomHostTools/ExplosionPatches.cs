@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using KrokoshaCasualtiesMP;
+using Together;
 
 namespace CasualtiesTogetherRandomHostTools;
 
@@ -16,7 +16,7 @@ public static class ExplosionPatches
         [HarmonyPrefix]
         public static void Prefix(ref ExplosionParams param)
         {
-            if (Net.is_client || ParamsOverride == null)
+            if (Net.IsClient || ParamsOverride == null)
                 return;
             ParamsOverride.position = param.position;
             param = ParamsOverride;

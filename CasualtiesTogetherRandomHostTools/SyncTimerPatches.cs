@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
-using KrokoshaCasualtiesMP;
+using Together;
 
 namespace CasualtiesTogetherRandomHostTools;
 
@@ -39,7 +39,7 @@ internal static class SyncTimerPatches
 
     private static float GetRareObjectSyncTimer(float original)
         => ObjectRareSyncTime >= 0f ? ObjectRareSyncTime : ObjectRareSyncTimeDefault = original;
-    
+
     [HarmonyPatch(typeof(WorldChunkSync), nameof(WorldChunkSync.LateUpdate))]
     [HarmonyTranspiler]
     private static IEnumerable<CodeInstruction> WorldChunkSyncTimersTranspiler(IEnumerable<CodeInstruction> instructions)

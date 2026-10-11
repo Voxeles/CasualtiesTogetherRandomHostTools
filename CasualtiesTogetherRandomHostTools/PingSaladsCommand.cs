@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using KrokoshaCasualtiesMP;
+using Together;
 using TMPro;
 using UnityEngine;
 
@@ -87,7 +87,7 @@ public class SaladTrackerComponent : MonoBehaviour
         }
 
         Vector2 pos =
-            UIInGame.SPECTATOR_MODE || PlayerCamera.main.isFreecam
+            UIInGame.SpectatorModeActive || PlayerCamera.main.isFreecam
             ? PlayerCamera.main.transform.position
             : PlayerCamera.main.body.transform.position;
         Vector2 saladPos = transform.position;

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using CasualtiesTogetherUtils;
 using HarmonyLib;
-using KrokoshaCasualtiesMP;
-using KrokoshaCasualtiesUtils;
+using Together;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -19,7 +19,7 @@ public static class SpawnPatches
     {
         var world = WorldGeneration.world;
 
-        if (Net.is_client || world.biomeOverride != WorldGeneration.OverrideSceneType.None)
+        if (Net.IsClient || world.biomeOverride != WorldGeneration.OverrideSceneType.None)
             return 0;
 
         var depth = GetStartingDepthSetting();
@@ -186,7 +186,7 @@ public static class SpawnPatches
     [HarmonyPrefix]
     private static void GenerateBlockLinePatch(WorldGeneration __instance)
     {
-        if (Net.is_client || __instance.biomeOverride != WorldGeneration.OverrideSceneType.None)
+        if (Net.IsClient || __instance.biomeOverride != WorldGeneration.OverrideSceneType.None)
             return;
 
         try

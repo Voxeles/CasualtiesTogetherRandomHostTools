@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BepInEx.Configuration;
-using KrokoshaCasualtiesMP;
+using Together;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -43,7 +43,7 @@ public class SavePlayerStateAutoWatcher : MonoBehaviour
         if (!ConfigEnabled.Value)
             return;
 
-        if (!KrokoshaScavMultiplayer.network_system_is_running || KrokoshaScavMultiplayer.is_client)
+        if (!Net.IsRunning || Net.IsClient)
             return;
 
         if (WorldGeneration.world == null || WorldGeneration.world.generatingWorld)
@@ -63,7 +63,7 @@ public class SavePlayerStateAutoWatcher : MonoBehaviour
         {
             try
             {
-                var playername = SavePlayerStateCommand.SanitizePlayerName(netBody.playername);
+                var playername = SavePlayerStateCommand.SanitizePlayerName(netBody.playerName);
                 var fileName = $"{playername}-auto-{timeStr}.json";
                 var file = Path.Combine(dirPath, fileName);
                 var data = SavedPlayerState.Create(netBody);
@@ -84,7 +84,7 @@ public class SavePlayerStateAutoWatcher : MonoBehaviour
             }
             catch (Exception e)
             {
-                Plugin.PrintError($"Failed to auto-save {netBody.playername}: {e}");
+                Plugin.PrintError($"Failed to auto-save {netBody.playerName}: {e}");
             }
         }
 

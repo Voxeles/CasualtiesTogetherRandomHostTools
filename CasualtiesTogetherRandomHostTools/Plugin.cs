@@ -2,12 +2,12 @@
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using KrokoshaCasualtiesMP;
+using Together;
 
 namespace CasualtiesTogetherRandomHostTools;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[BepInDependency("KrokoshaCasualtiesMP")]
+[BepInDependency("CasualtiesMP")]
 public class Plugin : BaseUnityPlugin
 {
 	public const string ModGuid = MyPluginInfo.PLUGIN_GUID;

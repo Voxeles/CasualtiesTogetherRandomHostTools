@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using HarmonyLib;
-using KrokoshaCasualtiesMP;
 using System.Reflection.Emit;
+using Together;
 using UnityEngine;
 
 namespace CasualtiesTogetherRandomHostTools;
 
-[HarmonyPatch(typeof(KrokoshaSoundCannonNetworkTrackerComponent), nameof(KrokoshaSoundCannonNetworkTrackerComponent.Update))]
+[HarmonyPatch(typeof(TrackerSoundCannon), nameof(TrackerSoundCannon.Update))]
 internal static class SoundCannonPatch
 {
     private static float GetConsciousnessDecreaseWhenBlocked(Transform soundCannon, Transform body)
@@ -17,7 +17,7 @@ internal static class SoundCannonPatch
         return Mathf.Lerp(30f, 0f, dist / 50f);
     }
 
-    private static void RemindPlayerOfTheirState(NetPlayer player)
+    private static void RemindPlayerOfTheirState(ScavPlayer player)
     {
         if (!Plugin.IsKaizoEnabled || !player.TryGetNetBody(out var netBody))
             return;
@@ -47,8 +47,8 @@ internal static class SoundCannonPatch
                     AccessTools.Method(typeof(SoundCannonPatch), nameof(GetConsciousnessDecreaseWhenBlocked))))
             .MatchForward(false,
                 new CodeMatch(OpCodes.Callvirt,
-                    AccessTools.PropertyGetter(typeof(NetPlayer), nameof(NetPlayer.is_local))))
-            .ThrowIfInvalid($"{nameof(SoundCannonPatch)}.{nameof(Transpiler)} could not find match (callvirt NetPlayer.get_is_local)!")
+                    AccessTools.PropertyGetter(typeof(ScavPlayer), nameof(ScavPlayer.IsLocal))))
+            .ThrowIfInvalid($"{nameof(SoundCannonPatch)}.{nameof(Transpiler)} could not find match (callvirt ScavPlayer.get_is_local)!")
             .Insert(
                 new CodeInstruction(OpCodes.Dup),
                 new CodeInstruction(OpCodes.Call,

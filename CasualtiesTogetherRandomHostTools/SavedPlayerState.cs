@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using KrokoshaCasualtiesMP;
-using KrokoshaCasualtiesUtils;
+using CasualtiesTogetherUtils;
+using Together;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -26,14 +26,14 @@ namespace CasualtiesTogetherRandomHostTools;
 
 public sealed class SavedPlayerState
 {
-    public List<SavedItem> SavedItemList = [];
-    public Dictionary<int, Dictionary<Type, string>> ItemComponentsDictionary = [];
-    public Dictionary<Type, string> BodyComponentsDictionary = [];
-    public List<Dictionary<Type, string>> LimbComponentsDictionary = [];
-    public CharacterHealthStateSyncPacket Health;
-    public List<int> RecipesCrafted = [];
+    private List<SavedItem> SavedItemList = [];
+    private Dictionary<int, Dictionary<Type, string>> ItemComponentsDictionary = [];
+    private Dictionary<Type, string> BodyComponentsDictionary = [];
+    private List<Dictionary<Type, string>> LimbComponentsDictionary = [];
+    private CharacterHealthStateSyncPacket Health;
+    private List<int> RecipesCrafted = [];
 
-    public static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
+    private static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
     {
         ContractResolver = new SavedPlayerStateContractResolver()
     };
@@ -133,9 +133,9 @@ public sealed class SavedPlayerState
         foreach (var limb in body.limbs)
             result.LimbComponentsDictionary.Add(SerializeComponents(limb));
 
-        result.Health = new CharacterHealthStateSyncPacket(body);
+        result.Health.Write(body);
 
-        result.RecipesCrafted = new List<int>(netBody.plr.tosave_hascrafterbeforerecipes);
+        result.RecipesCrafted = new List<int>(netBody.RecipesHasCrafterBefore);
 
         return result;
     }
@@ -146,7 +146,7 @@ public sealed class SavedPlayerState
 
         if (selection.HasFlag(RestoreSelection.Crafting))
         {
-            netBody.plr.tosave_hascrafterbeforerecipes = RecipesCrafted;
+            netBody.RecipesHasCrafterBefore = RecipesCrafted;
         }
 
         if (selection.HasFlag(RestoreSelection.Inventory))
@@ -274,17 +274,13 @@ public sealed class SavedPlayerState
 
             foreach (Item obj in body.GetAllItemsThorough())
             {
-                if (NetObjectRegistry.ObjectCanBeIgnoredForNetwork(obj.gameObject))
-                    continue;
-
-                SyncInfo si = NetObjectRegistry.Server_EnsureItemIsNetworkRegistered(obj.gameObject);
-                if (si != null)
-                    NetObjectRegistry.Server_QueueSync(si);
+                if (NetObjectRegistry.ObjectShouldBeSynced(obj.gameObject))
+                    NetObjectRegistry.Server_EnsureItemIsNetworkRegistered(obj.gameObject);
             }
         }
     }
 
-    public class SavedPlayerStateContractResolver : DefaultContractResolver
+    private class SavedPlayerStateContractResolver : DefaultContractResolver
     {
         private static readonly HashSet<Type> MpModDataStructs = [
             typeof(CharacterHealthStateSyncPacket), typeof(CharacterLimbHealthState), typeof(CharacterSkillsStateSyncPacket),
