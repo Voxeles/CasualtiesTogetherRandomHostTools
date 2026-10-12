@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Globalization;
-using KrokoshaCasualtiesMP;
+using Together;
 using UnityEngine;
 
 namespace CasualtiesTogetherRandomHostTools;
@@ -48,7 +48,7 @@ public static class TimedCommand
         while (true)
         {
             yield return null;
-            if (!KrokoshaScavMultiplayer.IsNetworkActiveAndIsServer())
+            if (!Multiplayer.IsNetworkActiveAndIsServer())
                 yield break;
 
             var remaining = (int)Mathf.Ceil(deadline - Time.realtimeSinceStartup);
