@@ -37,43 +37,38 @@ Adds various commands for Hosts to use
 - - There's a small delay before all the new stats 'kick in'
 - These are caused by the limitation/quirks of the MP mod, and I cannot fix them without forcing clients to install this mod as well.
 
-3. `RunSettings`
-- Allows you to change the run settings to any value, including out-of-bounds values
-- You can also use this to change the run settings mid-run. Note that this requires reloading the save to work correctly (change the settings, then use the saveandquit command)
-- `debugworld` setting does _not_ work! (limitation of the MP mod)
-
-4. `PingSalads`
+3. `PingSalads`
 - Shows you the location and distance of elder thornbacks
 - Works in-game and in spectator mode
 
-5. `FinalDestination`
+4. `FinalDestination`
 - PvP map, falling off results in instant death
 
-6. `ExplosionOverride`
+5. `ExplosionOverride`
 - Globally overrides all explosion parameters
 - You don't have to fill every parameter, just press enter once you've set the ones you're interested in
 - Leave the command parameters empty to disable it
 
-7. `AutoTranslate`
+6. `AutoTranslate`
 - Automatically translates a player's messages
 - The messages are translated for everyone, so you can turn the entire lobby Spanish if you want to
 - Supports Google translate and the DeepL API
 
-8. `SaveWorldTiles`
+7. `SaveWorldTiles`
 - Saves the world's tiles and fluids
 - Load via `LoadWorldTiles`
 - Caveats:
 - - Items, buildings, and enemies are deleted on load and are not saved
 - - It _only_ saves world tiles. Nothing else.
 
-9. `SyncTimerOverride`
+8. `SyncTimerOverride`
 - Allows you to change the default timer sync period
 - Lower values sync data more often, increasing network load but decreasing desync
 - Higher values decrease network load, but increase desync
 - Use with caution. Mainly useful for changing the default fluid sync timer period, as it is abysmally slow with multiple players and causes fluids to suddenly pop-in
 - For example, Kaizo mode changes the fluid timer frequency on layer 2 to 0.15
 
-10. `KaizoEnabled`
+9. `KaizoEnabled`
 - Enable the Kaizo mode
 - Adds a new _fun_ gimmick for every layer
   - Layer 1: Corrupted world
