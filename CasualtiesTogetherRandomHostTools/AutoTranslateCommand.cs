@@ -91,7 +91,7 @@ public static class AutoTranslateCommand
                 Con.con.LogToConsole(added
                     ? $"Player {plr.playerName} excluded from auto-translation"
                     : $"Player {plr.playerName} already excluded from auto-translation");
-            }, allow_macros: true, Con.GetCommandCallerPlayer(), require_body: true, onlyOne: false);
+            }, allow_macros: true, Con.GetCommandCallerPlayer(), require_body: false, onlyOne: false);
             if (!success)
                 Con.con.LogToConsole($"ERROR: AutoTranslateExclude: {args[1]}  - {errMsg}");
 
@@ -110,7 +110,7 @@ public static class AutoTranslateCommand
                 Con.con.LogToConsole(removed
                     ? $"Player {plr.playerName} included in auto-translation"
                     : $"Player {plr.playerName} already included in auto-translation");
-            }, allow_macros: true, Con.GetCommandCallerPlayer(), require_body: true, onlyOne: false);
+            }, allow_macros: true, Con.GetCommandCallerPlayer(), require_body: false, onlyOne: false);
             if (!success)
                 Con.con.LogToConsole($"ERROR: AutoTranslateInclude: {args[1]}  - {errMsg}");
 
