@@ -53,6 +53,10 @@
     <Reference Include="LiteNetLib">
       <HintPath>$(BepInExDir)/plugins/Together/LiteNetLib.dll</HintPath>
     </Reference>
+
+    <Reference Include="LiteEntitySystem" Publicize="true">
+      <HintPath>$(BepInExDir)/plugins/Together/LiteEntitySystem.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <PropertyGroup>

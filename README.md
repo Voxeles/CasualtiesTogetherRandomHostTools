@@ -76,3 +76,8 @@ Adds various commands for Hosts to use
   - Layer 3: Gunpowder rocks!
   - Layer 4: Sound check
   - Layer 5: Tower of Babel + Mitosis
+
+10. `SpawnClone`
+- Spawns a clone that mimics your inputs
+- The clone starts with a copy of the your inventory and health
+- Remove all clones with `RemoveClones`

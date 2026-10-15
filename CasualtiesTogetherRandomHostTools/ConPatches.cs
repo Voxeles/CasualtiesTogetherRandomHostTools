@@ -19,7 +19,8 @@ internal static class ConPatches
         TimedCommand.Register();
         SavePlayerStateCommand.Register();
         SaveWorldTilesCommand.Register();
-        
+        CloneCommand.Register();
+
         var comm = new Command("KaizoEnabled", "Is kaizo game mode enabled", args =>
         {
             Con.ConFailIfNetworkNotRunning();
