@@ -146,7 +146,7 @@ public sealed class SavedPlayerState
 
         if (selection.HasFlag(RestoreSelection.Crafting))
         {
-            netBody.RecipesHasCrafterBefore = RecipesCrafted;
+            netBody.RecipesHasCrafterBefore = new List<int>(RecipesCrafted);
         }
 
         if (selection.HasFlag(RestoreSelection.Inventory))
