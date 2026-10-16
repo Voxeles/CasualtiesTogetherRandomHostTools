@@ -55,6 +55,7 @@ public static class CloneManager
                 e.playerSteamId.Value = hostPlayer.SteamId; // Needs to be a real steam ID that is in a lobby
                 e.playerName.Value = name;
                 e.playerColor.Value = color;
+                e.IsWindowFocused.Value = true;
             });
             manager.AddController<BasePlayerController>(owner, basePlayer);
 
