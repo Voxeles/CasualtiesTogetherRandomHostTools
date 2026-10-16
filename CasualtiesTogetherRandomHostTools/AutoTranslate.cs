@@ -13,11 +13,11 @@ namespace CasualtiesTogetherRandomHostTools;
 
 public class AutoTranslate
 {
-    public ConfigEntry<bool> ConfigAutoTranslateEnabled;
-    public ConfigEntry<string> ConfigAutoTranslateBackend;
-    public ConfigEntry<string> ConfigAutoTranslateAuthHeader;
-    public ConfigEntry<string> ConfigAutoTranslateTargetLang;
-    public HashSet<ScavPlayer> DoNotTranslateList = [];
+    public readonly ConfigEntry<bool> ConfigAutoTranslateEnabled;
+    public readonly ConfigEntry<string> ConfigAutoTranslateBackend;
+    public readonly ConfigEntry<string> ConfigAutoTranslateAuthHeader;
+    public readonly ConfigEntry<string> ConfigAutoTranslateTargetLang;
+    public readonly HashSet<ScavPlayer> DoNotTranslateList = [];
     public bool ForceDisableWhenKaizo = false;
     private readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(5.0) };
     

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using BepInEx.Configuration;
 using Together;
-using Newtonsoft.Json;
 using UnityEngine;
 
 namespace CasualtiesTogetherRandomHostTools;

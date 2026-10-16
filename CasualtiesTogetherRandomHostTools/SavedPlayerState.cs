@@ -160,7 +160,6 @@ public sealed class SavedPlayerState
         if (selection.HasFlag(RestoreSelection.Health))
         {
             // We might have to modify this later, make a copy it
-            // Seems bad for a method named 'Apply' to modify the stored data, even if it doesn't matter for our purposes
             var health = Health;
 
             // The mp mod seems to think 'one limb regrown' is 'all limbs regrown'
