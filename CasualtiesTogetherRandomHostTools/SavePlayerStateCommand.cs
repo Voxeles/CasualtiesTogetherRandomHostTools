@@ -32,7 +32,7 @@ public static class SavePlayerStateCommand
 
     public static void Register()
     {
-        var comm = new Command("SavePlayerState", "Save a player's state (inventory, health, etc.)", args =>
+        Con.RegisterCommand(new Command("SavePlayerState", "Save a player's state (inventory, health, etc.)", args =>
         {
             Con.ConFailIfNetworkNotRunning();
             Con.ConFailIfNetworkIsRunningAndIsClient();
@@ -67,10 +67,9 @@ public static class SavePlayerStateCommand
 
         }, null, [
             ("player", "player or players to whose state to save")
-        ]);
-        Con.RegisterCommand(comm);
+        ]));
 
-        comm = new Command("LoadPlayerState", "Load a player's state", args =>
+        Con.RegisterCommand(new Command("LoadPlayerState", "Load a player's state", args =>
         {
             UpdateFiles();
 
@@ -104,11 +103,10 @@ public static class SavePlayerStateCommand
             ("scope", "what to restore. concatenate with ',' (no spaces)"),
             ("player", "player whose state to restore"),
             ("file", "file to load")
-        ]);
-        Con.RegisterCommand(comm);
+        ]));
         UpdateFiles();
 
-        comm = new Command("SavePlayerStateAuto", "Sets the auto player state save settings", args =>
+        Con.RegisterCommand(new Command("SavePlayerStateAuto", "Sets the auto player state save settings", args =>
         {
             Con.ConFailIfNetworkNotRunning();
             Con.ConFailIfNetworkIsRunningAndIsClient();
@@ -178,8 +176,7 @@ public static class SavePlayerStateCommand
         }, [
             ("setting", "setting to change"),
             ("value", "new value, leave blank to read current value")
-        ]);
-        Con.RegisterCommand(comm);
+        ]));
     }
 
     private static readonly HashSet<char> InvalidChars = [' ', '<', '>', ':', '"', '/', '\\', '|', '?', '*'];

@@ -85,7 +85,7 @@ public static class ExplosionOverrideCommand
 
     public static void Register()
     {
-        var comm = new Command("ExplosionOverride", "Override explosion params, leave empty to disable, you _do not_ have to fill all settings", args =>
+        Con.RegisterCommand(new Command("ExplosionOverride", "Override explosion params, leave empty to disable, you _do not_ have to fill all settings", args =>
         {
             Con.ConFailIfNetworkNotRunning();
             Con.ConFailIfNetworkIsRunningAndIsClient();
@@ -103,10 +103,9 @@ public static class ExplosionOverrideCommand
 
             for (int i = 0; i < ExplosionParamSetters.Count && i + 1 < args.Length; i++)
                 ExplosionParamSetters[i](p, args[i + 1]);
-            
+
             Con.con.LogToConsole("Set new explosion params!");
 
-        }, ExplosionParamDefaults, ExplosionParamDescs);
-        Con.RegisterCommand(comm);
+        }, ExplosionParamDefaults, ExplosionParamDescs));
     }
 }

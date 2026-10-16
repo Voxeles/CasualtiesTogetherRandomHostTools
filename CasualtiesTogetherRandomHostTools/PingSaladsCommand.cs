@@ -10,7 +10,7 @@ public static class PingSaladsCommand
 {
     public static void Register()
     {
-        var comm = new Command("PingSalads", "Show where the elder thornbacks are", args =>
+        Con.RegisterCommand(new Command("PingSalads", "Show where the elder thornbacks are", args =>
         {
             ConsoleScript.instance.CheckForWorld();
             Con.ConFailIfCheatsDisabled();
@@ -22,14 +22,14 @@ public static class PingSaladsCommand
                 if (duration < 0)
                     throw new Exception("Duration cannot be negative");
             }
-            
+
             var salads = GameObject.FindObjectsByType<ElderThornbackBehaviour>(FindObjectsSortMode.None);
             if (salads == null || salads.Length == 0)
             {
                 Con.con.LogToConsole("No elder thornbacks found.");
                 return;
             }
-            
+
             Con.con.LogToConsole($"Found {salads.Length} elder thornbacks.");
 
             foreach (var salad in salads)
@@ -45,13 +45,12 @@ public static class PingSaladsCommand
                     tracker.duration = duration;
                 }
             }
-            
+
         }, new Dictionary<int, List<string>> {
             {0, ["6"]}
         }, [
             ("duration", "optional, ping duration")
-        ]);
-        Con.RegisterCommand(comm);
+        ]));
     }
 }
 

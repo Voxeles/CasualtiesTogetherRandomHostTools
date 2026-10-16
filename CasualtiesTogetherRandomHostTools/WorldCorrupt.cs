@@ -7,7 +7,7 @@ namespace CasualtiesTogetherRandomHostTools;
 public static class WorldCorrupt
 {
     private const int ChunkSize = 8;
-    
+
     public static IEnumerator DoCorrupt()
     {
         Plugin.Logger.LogInfo("DoCorrupt start");
@@ -37,11 +37,11 @@ public static class WorldCorrupt
             var tcol = Random.RandomRangeInt(0, (int)world.width);
             SwapWorldCols(col, tcol);
         }
-        
+
         yield return null;
-        
+
         world.UpdateWorld();
-        
+
         yield return null;
     }
     
@@ -50,7 +50,7 @@ public static class WorldCorrupt
         var tiles = WorldGeneration.world.worldBlocks;
         int height = (int)WorldGeneration.world.height;
         const int colBytes = ChunkSize * sizeof(ushort);
-        
+
         fixed (ushort* basePtr = tiles)
         {
             ushort* tmpCol = stackalloc ushort[ChunkSize];
@@ -64,13 +64,13 @@ public static class WorldCorrupt
             }
         }
     }
-    
+
     private static unsafe void SwapWorldCols(int col1, int col2)
     {
         var tiles = WorldGeneration.world.worldBlocks;
         int height = (int)WorldGeneration.world.height;
         int colBytes = height * sizeof(ushort);
-        
+
         fixed (ushort* basePtr = tiles)
         {
             ushort* tmpCol = stackalloc ushort[height];
@@ -86,12 +86,27 @@ public static class WorldCorrupt
     {
         var f = FluidManager.main.fluid;
         var length = f.LongLength;
-        
+
         fixed (byte* basePtr = f)
         {
             for (var i = 0L; i < length; i++)
             {
                 if (*(basePtr + i) != 0)
+                    *(basePtr + i) = newLiquid;
+            }
+        }
+    }
+
+    public static unsafe void ReplaceLiquid(byte oldLiquid, byte newLiquid)
+    {
+        var f = FluidManager.main.fluid;
+        var length = f.LongLength;
+
+        fixed (byte* basePtr = f)
+        {
+            for (var i = 0L; i < length; i++)
+            {
+                if (*(basePtr + i) == oldLiquid)
                     *(basePtr + i) = newLiquid;
             }
         }

@@ -10,7 +10,7 @@ public static class TimedCommand
 {
     public static void Register()
     {
-        var command = new Command("TimedCommand", "Execute a command after a set delay.", args =>
+        Con.RegisterCommand(new Command("TimedCommand", "Execute a command after a set delay.", args =>
         {
             Con.ConFailIfNetworkNotRunning();
             Con.ConFailIfNetworkIsRunningAndIsClient();
@@ -27,10 +27,9 @@ public static class TimedCommand
         }, null,
         [
             ("delay", "execution delay in seconds"),
-            ("title", "chat announcement title. Use '_' to disable the in-chat announcements"),
-            ("command", "command to execute; Do NOT use underscores to join the arguments")
-        ]);
-        Con.RegisterCommand(command);
+            ("title", "chat announcement title. Type just \"_\" to disable the in-chat announcements"),
+            ("command...", "command to execute; multiple arguments allowed")
+        ]));
     }
 
     private static IEnumerator CountdownCoro(int seconds, string title, string command)

@@ -81,3 +81,11 @@ Adds various commands for Hosts to use
 - Spawns a clone that mimics your inputs
 - The clone starts with a copy of the your inventory and health
 - Remove all clones with `RemoveClones`
+
+11. `NamedAnnouncement`
+- Sends a chat message with a given player name
+- The player name does not have to be a name of a real player
+- The chat message allows for formatting tags
+
+12. `WorldReplaceLiquid`
+- Replaces a given liquid tile with another

@@ -34,7 +34,7 @@ public static class SaveWorldTilesCommand
 
     public static void Register()
     {
-        var comm = new Command("SaveWorldTiles", "Save the world's tiles", args =>
+        Con.RegisterCommand(new Command("SaveWorldTiles", "Save the world's tiles", args =>
         {
             Con.ConFailIfNetworkIsRunningAndIsClient();
             ConsoleScript.instance.CheckForWorld();
@@ -96,10 +96,9 @@ public static class SaveWorldTilesCommand
             {0, _savedFiles}
         }, [
             ("name", "What the file should be named")
-        ]);
-        Con.RegisterCommand(comm);
+        ]));
 
-        comm = new Command("LoadWorldTiles", "Load the world's tiles", args =>
+        Con.RegisterCommand(new Command("LoadWorldTiles", "Load the world's tiles", args =>
         {
             UpdateFiles();
 
@@ -165,8 +164,7 @@ public static class SaveWorldTilesCommand
             {0, _savedFiles}
         }, [
             ("file", $"Which file within \"{SaveDirPath}\" to load")
-        ]);
-        Con.RegisterCommand(comm);
+        ]));
 
         UpdateFiles();
     }

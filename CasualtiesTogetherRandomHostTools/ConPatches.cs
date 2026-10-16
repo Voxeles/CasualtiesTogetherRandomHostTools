@@ -20,12 +20,13 @@ internal static class ConPatches
         SavePlayerStateCommand.Register();
         SaveWorldTilesCommand.Register();
         CloneCommand.Register();
+        WorldReplaceLiquidCommand.Register();
 
-        var comm = new Command("KaizoEnabled", "Is kaizo game mode enabled", args =>
+        Con.RegisterCommand(new Command("KaizoEnabled", "Is kaizo game mode enabled", args =>
         {
             Con.ConFailIfNetworkNotRunning();
             Con.ConFailIfNetworkIsRunningAndIsClient();
-            
+
             switch (args[1])
             {
                 case "true":
@@ -47,10 +48,9 @@ internal static class ConPatches
             {0, ["true", "false"]}
         }, [
             ("enabled", "")
-        ]);
-        Con.RegisterCommand(comm);
+        ]));
 
-        comm = new Command("FinalDestination", "\"No crafting, voyager only, final destination\"", args =>
+        Con.RegisterCommand(new Command("FinalDestination", "\"No crafting, voyager only, final destination\"", args =>
         {
             Con.ConFailIfNetworkIsRunningAndIsClient();
             Con.ConFailIfNotInMainMenu();
@@ -70,11 +70,10 @@ internal static class ConPatches
 
             FinalDestinationPatch.ShouldDoTheOverride = true;
             SceneManager.LoadScene("SampleScene");
-            
-        }, null, ("bool", "Add platforms (battlefield)"), ("bool", "Double the width"));
-        Con.RegisterCommand(comm);
 
-        comm = new Command("SaladSplitCount", "Maximum amount of times that salads can split when kaizo mode is enabled", args =>
+        }, null, ("bool", "Add platforms (battlefield)"), ("bool", "Double the width")));
+
+        Con.RegisterCommand(new Command("SaladSplitCount", "Maximum amount of times that salads can split when kaizo mode is enabled", args =>
         {
             Con.ConFailIfNetworkNotRunning();
             Con.ConFailIfNetworkIsRunningAndIsClient();
@@ -88,7 +87,25 @@ internal static class ConPatches
             {0, ["1"]}
         }, [
             ("integer", "maximum amount of splits")
-        ]);
-        Con.RegisterCommand(comm);
+        ]));
+
+        Con.RegisterCommand(new Command("NamedAnnouncement", "Sends a named announcement in chat", args =>
+        {
+            Con.ConFailIfNetworkIsRunningAndIsClient();
+            Con.con.CheckArgumentCount(args, 2);
+
+            var name = args[1];
+            var tag = args[2].Replace("_", " ");
+            var message = string.Join(" ", args, 3, args.Length - 3);
+
+            Chat.Server_ChatAnnouncement(name, tag, message);
+
+        }, new Dictionary<int, List<string>> {
+            {1, ["_"]}
+        }, [
+            ("player", "chat player name (can be anything you want)"),
+            ("tag", "type just '_' to disable"),
+            ("message...", "multiple arguments allowed"),
+        ]));
     }
 }

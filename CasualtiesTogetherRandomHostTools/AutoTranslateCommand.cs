@@ -8,7 +8,7 @@ public static class AutoTranslateCommand
 {
     public static void Register()
     {
-        var comm = new Command("AutoTranslate", "Change auto translation settings", args =>
+        Con.RegisterCommand(new Command("AutoTranslate", "Change auto translation settings", args =>
         {
             Con.ConFailIfNetworkNotRunning();
             Con.ConFailIfNetworkIsRunningAndIsClient();
@@ -28,7 +28,7 @@ public static class AutoTranslateCommand
                     break;
                 case "enabled":
                     throw new Exception("Bad value - expected 'true' or 'false'");
-                
+
                 case "backend" when args.Length < 3:
                     Con.con.LogToConsole($"Auto translate backend: {AutoTranslate.Instance.ConfigAutoTranslateBackend.Value}");
                     break;
@@ -36,7 +36,7 @@ public static class AutoTranslateCommand
                     AutoTranslate.Instance.ConfigAutoTranslateBackend.Value = args[2];
                     Con.con.LogToConsole($"Auto translate set backend: {args[2]}!");
                     break;
-                
+
                 case "authHeader" when args.Length < 3:
                     Con.con.LogToConsole($"Auto translate auth header: {AutoTranslate.Instance.ConfigAutoTranslateAuthHeader.Value}");
                     break;
@@ -44,7 +44,7 @@ public static class AutoTranslateCommand
                     AutoTranslate.Instance.ConfigAutoTranslateAuthHeader.Value = args[2];
                     Con.con.LogToConsole($"Auto translate set auth header: {args[2]}!");
                     break;
-                
+
                 case "targetLang" when args.Length < 3:
                     Con.con.LogToConsole($"Auto translate target language: {AutoTranslate.Instance.ConfigAutoTranslateTargetLang.Value}");
                     break;
@@ -52,7 +52,7 @@ public static class AutoTranslateCommand
                     AutoTranslate.Instance.ConfigAutoTranslateTargetLang.Value = args[2];
                     Con.con.LogToConsole($"Auto translate set target language: {args[2]}!");
                     break;
-                
+
                 case "forceDisableWhenKaizo" when args.Length < 3:
                     Con.con.LogToConsole($"Kaizo mode's auto translate: {AutoTranslate.Instance.ForceDisableWhenKaizo}");
                     break;
@@ -66,20 +66,19 @@ public static class AutoTranslateCommand
                     break;
                 case "forceDisableWhenKaizo":
                     throw new Exception("Bad value - expected 'true' or 'false'");
-                
+
                 default:
                     throw new Exception("Bad value - no such setting");
             }
-            
+
         }, new Dictionary<int, List<string>> {
             {0, ["enabled", "backend", "authHeader", "targetLang", "forceDisableWhenKaizo"]}
         }, [
-            ("setting", "auto translation setting"), 
+            ("setting", "auto translation setting"),
             ("value", "new value, leave blank to get current value")
-        ]);
-        Con.RegisterCommand(comm);
+        ]));
 
-        comm = new Command("AutoTranslateExclude", "Which players to exclude from auto-translation", args =>
+        Con.RegisterCommand(new Command("AutoTranslateExclude", "Which players to exclude from auto-translation", args =>
         {
             Con.ConFailIfNetworkNotRunning();
             Con.ConFailIfNetworkIsRunningAndIsClient();
@@ -95,10 +94,9 @@ public static class AutoTranslateCommand
             if (!success)
                 Con.con.LogToConsole($"ERROR: AutoTranslateExclude: {args[1]}  - {errMsg}");
 
-        }, null, ("player", ""));
-        Con.RegisterCommand(comm);
+        }, null, ("player", "")));
         
-        comm = new Command("AutoTranslateInclude", "Which players to include in auto-translation", args =>
+        Con.RegisterCommand(new Command("AutoTranslateInclude", "Which players to include in auto-translation", args =>
         {
             Con.ConFailIfNetworkNotRunning();
             Con.ConFailIfNetworkIsRunningAndIsClient();
@@ -114,7 +112,6 @@ public static class AutoTranslateCommand
             if (!success)
                 Con.con.LogToConsole($"ERROR: AutoTranslateInclude: {args[1]}  - {errMsg}");
 
-        }, null, ("player", ""));
-        Con.RegisterCommand(comm);
+        }, null, ("player", "")));
     }
 }

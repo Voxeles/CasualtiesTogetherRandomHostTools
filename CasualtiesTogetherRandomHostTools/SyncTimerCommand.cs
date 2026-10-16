@@ -9,7 +9,7 @@ public static class SyncTimerCommand
 {
     public static void Register()
     {
-        var comm = new Command("SyncTimerOverride", "Override the sync timers wait period.", args =>
+        Con.RegisterCommand(new Command("SyncTimerOverride", "Override the sync timers wait period.", args =>
         {
             Con.ConFailIfNetworkNotRunning();
             Con.ConFailIfNetworkIsRunningAndIsClient();
@@ -18,7 +18,7 @@ public static class SyncTimerCommand
                 throw new Exception("Not enough arguments - Expected a timer name and a decimal value!");
 
             var value = float.Parse(args[2], CultureInfo.InvariantCulture);
-            
+
             switch (args[1])
             {
                 case "tilemap":
@@ -61,7 +61,6 @@ public static class SyncTimerCommand
         }, [
             ("timer", "which timer to modify"),
             ("sync time", "a decimal number representing the new sync period value in seconds. Set it to -1.0 to use the default.")
-        ]);
-        Con.RegisterCommand(comm);
+        ]));
     }
 }
