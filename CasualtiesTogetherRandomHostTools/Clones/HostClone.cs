@@ -48,8 +48,7 @@ public sealed class HostClone : MonoBehaviour
         try
         {
             _initialState.Apply(Npc, SavedPlayerState.RestoreSelection.Health | SavedPlayerState.RestoreSelection.Inventory);
-            Body.handSlot = _initialHandSlot;
-            SendHandSlot();
+            SetHandSlot(_initialHandSlot);
             Ready = true;
         }
         catch (Exception ex)
@@ -146,6 +145,12 @@ public sealed class HostClone : MonoBehaviour
                 w.Put(Npc.netId);
             });
         }
+    }
+
+    internal void SetHandSlot(int slot)
+    {
+        Body.handSlot = slot;
+        SendHandSlot();
     }
 
     private void SendHandSlot()

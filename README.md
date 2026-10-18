@@ -79,8 +79,9 @@ Adds various commands for Hosts to use
 
 10. `SpawnClone`
 - Spawns a clone that mimics your inputs
-- The clone starts with a copy of the your inventory and health
+- The clone starts with a copy of your inventory and health
 - Remove all clones with `RemoveClones`
+- Update their state to match yours with `UpdateClones`
 
 11. `NamedAnnouncement`
 - Sends a chat message with a given player name

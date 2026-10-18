@@ -112,6 +112,8 @@ public static class CloneManager
         foreach (var clone in clones)
             clone.Ready = false;
 
+        // Destroying a body is slow as shit. 80ms cold on my pc
+        // Spread the destruction over several frames
         Plugin.Instance.StartCoroutine(RemoveAllCoro(clones));
         return clones.Length;
     }
@@ -135,7 +137,7 @@ public static class CloneManager
                 yield return null;
 
                 ushort removedTick = manager.Tick;
-                float deadline = Time.realtimeSinceStartup + 3f;
+                float deadline = Time.realtimeSinceStartup + 1.5f;
 
                 // Wait a bit for the clients to catch up to prevent batching
                 while (Time.realtimeSinceStartup < deadline
@@ -169,5 +171,26 @@ public static class CloneManager
     {
         foreach (var pair in Clones.Where(pair => pair.Value == clone).ToArray())
             Clones.Remove(pair.Key);
+    }
+
+    public static void ApplyCloneStateAll(NetBody sourceBody)
+    {
+        if (!sourceBody)
+            return;
+
+        var state = SavedPlayerState.Create(sourceBody);
+
+        foreach (var clone in Clones.Values.Where(c => c != null).ToArray())
+        {
+            try
+            {
+                state.Apply(clone.Npc, SavedPlayerState.RestoreSelection.Health | SavedPlayerState.RestoreSelection.Inventory);
+                clone.SetHandSlot(sourceBody.body.handSlot);
+            }
+            catch (Exception ex)
+            {
+                Plugin.PrintWarning("Failed to update clone: " + ex);
+            }
+        }
     }
 }
