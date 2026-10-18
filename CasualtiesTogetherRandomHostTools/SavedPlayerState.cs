@@ -270,12 +270,6 @@ public sealed class SavedPlayerState
 
                 DeserializeComponents(item.gameObject, ItemComponentsDictionary[i]);
             }
-
-            foreach (Item obj in body.GetAllItemsThorough())
-            {
-                if (NetObjectRegistry.ObjectShouldBeSynced(obj.gameObject))
-                    NetObjectRegistry.Server_EnsureItemIsNetworkRegistered(obj.gameObject);
-            }
         }
     }
 
