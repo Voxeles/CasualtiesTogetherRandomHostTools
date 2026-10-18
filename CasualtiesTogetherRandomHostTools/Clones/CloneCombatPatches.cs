@@ -75,7 +75,7 @@ internal static class CloneMeleePatch
         {
             w.Put(__state.Clone.PlayerId);
             w.Put(hasTool);
-            w.Put(hasTool ? NetObjectRegistry.GetSyncInfo(__state.Tool).syncId : 0);
+            w.Put(hasTool ? (ushort)NetObjectRegistry.GetSyncInfo(__state.Tool).syncId : (ushort)0);
             w.Put(__state.From);
             w.Put(__state.To);
         }, DeliveryMethod.Unreliable);
