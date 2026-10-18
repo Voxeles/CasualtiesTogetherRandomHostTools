@@ -88,4 +88,5 @@ Adds various commands for Hosts to use
 - The chat message allows for formatting tags
 
 12. `WorldReplaceLiquid`
-- Replaces a given liquid tile with another
+- Replaces all instances of a given liquid tile with another
+- Use `@a` to target all liquids on the map

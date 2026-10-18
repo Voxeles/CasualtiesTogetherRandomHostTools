@@ -28,27 +28,27 @@ public static class WorldReplaceLiquidCommand
 
             if (args[1] == "@a")
             {
-                if (!FluidNameToByte.TryGetValue(args[2], out byte target))
-                    throw new Exception($"Invalid liquid \"{args[2]}\"!");
+                if (!FluidNameToByte.TryGetValue(args[2], out byte newLiquid))
+                    throw new Exception($"Invalid new liquid \"{args[2]}\"!");
 
-                WorldCorrupt.ReplaceAllLiquids(target);
+                WorldCorrupt.ReplaceAllLiquids(newLiquid);
             }
             else
             {
-                if (!FluidNameToByte.TryGetValue(args[1], out byte source))
-                    throw new Exception($"Invalid liquid \"{args[1]}\"!");
+                if (!FluidNameToByte.TryGetValue(args[1], out byte oldLiquid))
+                    throw new Exception($"Invalid target liquid \"{args[1]}\"!");
 
-                if (!FluidNameToByte.TryGetValue(args[2], out byte target))
-                    throw new Exception($"Invalid liquid \"{args[2]}\"!");
+                if (!FluidNameToByte.TryGetValue(args[2], out byte newLiquid))
+                    throw new Exception($"Invalid new liquid \"{args[2]}\"!");
 
-                WorldCorrupt.ReplaceLiquid(source, target);
+                WorldCorrupt.ReplaceLiquid(oldLiquid, newLiquid);
             }
 
         }, new Dictionary<int, List<string>> {
             {0, ["@a", .. FluidNameToByte.Keys]},
             {1, [.. FluidNameToByte.Keys]}
         }, [
-            ("source liquid tile", ""),
+            ("target liquid tile", ""),
             ("new liquid tile", "")
         ]));
     }
