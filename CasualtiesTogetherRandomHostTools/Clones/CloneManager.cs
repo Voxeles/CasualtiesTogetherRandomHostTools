@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using LiteEntitySystem;
@@ -14,6 +15,8 @@ public static class CloneManager
 
     public static bool Any
         => Clones.Count > 0;
+
+    public static bool IsRemoving { get; private set; }
 
     public static bool TryGet(Body body, out HostClone clone)
     {
@@ -102,11 +105,64 @@ public static class CloneManager
 
     public static int RemoveAll()
     {
-        var clones = Clones.Values.ToArray();
+        var clones = Clones.Values.Where(c => c != null).ToArray();
+        if (clones.Length == 0)
+            return 0;
+
         foreach (var clone in clones)
-            Remove(clone);
-        Clones.Clear();
+            clone.Ready = false;
+
+        Plugin.Instance.StartCoroutine(RemoveAllCoro(clones));
         return clones.Length;
+    }
+
+    private static IEnumerator RemoveAllCoro(HostClone[] clones)
+    {
+        IsRemoving = true;
+        var manager = Net.ServerEntityManager;
+        try
+        {
+            foreach (var clone in clones)
+            {
+                if (manager == null || Net.ServerEntityManager != manager)
+                    yield break;
+
+                if (clone == null)
+                    continue;
+
+                // Remove and yield for destroy
+                Remove(clone);
+                yield return null;
+
+                ushort removedTick = manager.Tick;
+                float deadline = Time.realtimeSinceStartup + 3f;
+
+                // Wait a bit for the clients to catch up to prevent batching
+                while (Time.realtimeSinceStartup < deadline
+                       && Net.ServerEntityManager == manager
+                       && !AllClientsReached(manager, removedTick))
+                {
+                    yield return null;
+                }
+            }
+        }
+        finally
+        {
+            IsRemoving = false;
+        }
+    }
+
+    private static bool AllClientsReached(ServerEntityManager manager, ushort tick)
+    {
+        for (int i = 0; i < manager._netPlayers.Count; i++)
+        {
+            var player = manager._netPlayers.GetByIndex(i);
+            if (player.State != NetPlayerState.Active)
+                continue;
+            if (LiteEntitySystem.Utils.SequenceDiff(player.StateATick, tick) < 0)
+                return false;
+        }
+        return true;
     }
 
     public static void Forget(HostClone clone)

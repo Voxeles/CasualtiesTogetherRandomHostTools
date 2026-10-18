@@ -14,6 +14,9 @@ public static class CloneCommand
             Con.ConFailIfNetworkIsRunningAndIsClient();
             Con.con.CheckForWorld();
 
+            if (CloneManager.IsRemoving)
+                throw new Exception("Clones are being removed - please wait!");
+
             var host = ScavPlayer.GetLocalNetBodyNullable();
             if (!host)
                 throw new Exception("You don't have a body!");
@@ -33,8 +36,11 @@ public static class CloneCommand
         {
             Con.ConFailIfNetworkIsRunningAndIsClient();
 
+            if (CloneManager.IsRemoving)
+                throw new Exception("Clones are already being removed - please wait!");
+
             int count = CloneManager.RemoveAll();
-            Con.con.LogToConsole($"Removed {count} clone(s).");
+            Con.con.LogToConsole(count == 0 ? "No clones to remove." : $"Removing {count} clone(s)...");
         }, null);
         Con.RegisterCommand(command);
     }
