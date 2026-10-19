@@ -112,8 +112,7 @@ public static class CloneManager
         foreach (var clone in clones)
             clone.Ready = false;
 
-        // Destroying a body is slow as shit. 80ms cold on my pc
-        // Spread the destruction over several frames
+        // Destroying a body is slow as shit, spread the destruction over several frames
         Plugin.Instance.StartCoroutine(RemoveAllCoro(clones));
         return clones.Length;
     }
