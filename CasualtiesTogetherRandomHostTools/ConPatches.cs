@@ -60,11 +60,11 @@ internal static class ConPatches
             if (args.Length > 2)
                 FinalDestinationPatch.Scaling = bool.Parse(args[2]) ? 2 : 1;
 
-            WorldgenPatches._CheckIfCanLoadAWorld();
-            WorldgenPatches.SetTutorialPlayerPrefs(false);
-            WorldgenPatches.earthquake_enabled = false;
-            WorldgenPatches.SetRadlinePlayerPrefs(false);
-            WorldgenPatches.runSettings["ambientlight"] = 2;
+            WorldMP._CheckIfCanLoadAWorld();
+            WorldMP.SetTutorialPlayerPrefs(false);
+            WorldMP.earthquake_enabled = false;
+            WorldMP.SetRadlinePlayerPrefs(false);
+            WorldMP.runSettings["ambientlight"] = 2;
             if (Multiplayer.IsNetworkActiveAndIsServer())
                 ServerMain.Server_Announce_GAME_START();
 

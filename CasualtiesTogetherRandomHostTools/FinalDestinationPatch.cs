@@ -87,7 +87,7 @@ internal static class FinalDestinationPatch
             ShouldDoTheOverride = false;
             ActuallyDoBattlefield = false;
             Scaling = 1;
-            WorldgenPatches.CreateSkyBackground(Color.white, 2f);
+            WorldMP.CreateSkyBackground(Color.white, 2f);
             WorldGeneration.world.gameObject.AddComponent<KillPlayersAtBottomAndHideSavePanel>();
         }
         
@@ -102,7 +102,7 @@ internal static class FinalDestinationPatch
         }
     }
     
-    [HarmonyPatch(typeof(WorldgenPatches), nameof(WorldgenPatches.ServerReceiver_FinishedWorldgen))]
+    [HarmonyPatch(typeof(WorldMP), nameof(WorldMP.ServerReceiver_FinishedWorldgen))]
     [HarmonyPostfix]
     private static void QueueTileSyncForPlayer(knetid clientId)
     {

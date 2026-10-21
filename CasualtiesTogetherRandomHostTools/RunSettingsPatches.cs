@@ -104,7 +104,7 @@ public static class RunSettingsPatches
         return -1;
     }
 
-    [HarmonyPatch(typeof(WorldgenPatches), nameof(WorldgenPatches.CompileRunSettings))]
+    [HarmonyPatch(typeof(WorldMP), nameof(WorldMP.CompileRunSettings))]
     [HarmonyTranspiler]
     private static IEnumerable<CodeInstruction> DoNotSendCustomSettingsPatch(IEnumerable<CodeInstruction> instructions)
     {

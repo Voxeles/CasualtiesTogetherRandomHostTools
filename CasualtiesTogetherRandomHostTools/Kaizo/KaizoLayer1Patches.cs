@@ -123,7 +123,7 @@ internal static class KaizoLayer1Patches
         }
     }
 
-    [HarmonyPatch(typeof(WorldgenPatches), nameof(WorldgenPatches.ServerReceiver_FinishedWorldgen))]
+    [HarmonyPatch(typeof(WorldMP), nameof(WorldMP.ServerReceiver_FinishedWorldgen))]
     [HarmonyPostfix]
     private static void QueueLiquidSyncForPlayer(knetid clientId)
     {
