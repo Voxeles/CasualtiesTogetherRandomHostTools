@@ -30,6 +30,12 @@ public static class CloneManager
     public static bool IsCloneId(byte id)
         => Clones.Values.Any(c => c && c.Owner != null && c.Owner.Id == id);
 
+    public static bool TryGetById(ushort id, out HostClone clone)
+    {
+        clone = Clones.Values.FirstOrDefault(c => c && c.Owner != null && c.Owner.Id == id);
+        return clone;
+    }
+
     public static IEnumerable<NetPlayer> Owners
         => Clones.Values.Where(c => c && c.Owner != null).Select(c => c.Owner);
 

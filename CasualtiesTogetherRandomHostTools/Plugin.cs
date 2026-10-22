@@ -7,6 +7,8 @@ namespace CasualtiesTogetherRandomHostTools;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency("CasualtiesMP")]
+[BepInDependency(CatPatchCompat.CatPatchGuid, BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency(MsrCompat.MsrGuid, BepInDependency.DependencyFlags.SoftDependency)]
 public class Plugin : BaseUnityPlugin
 {
 	public const string ModGuid = MyPluginInfo.PLUGIN_GUID;

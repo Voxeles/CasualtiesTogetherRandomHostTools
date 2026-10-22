@@ -50,6 +50,7 @@ public sealed class HostClone : MonoBehaviour
             _initialState.Apply(Npc, SavedPlayerState.RestoreSelection.Health | SavedPlayerState.RestoreSelection.Inventory);
             SetHandSlot(_initialHandSlot);
             Ready = true;
+            CloneMsrRelayPatch.SendHostSkin(this);
         }
         catch (Exception ex)
         {
