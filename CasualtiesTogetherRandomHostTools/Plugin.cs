@@ -1,4 +1,6 @@
-﻿using BepInEx;
+﻿using System;
+using System.Threading;
+using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using Together;
@@ -20,11 +22,13 @@ public class Plugin : BaseUnityPlugin
 	public static Plugin Instance { get; private set; } = null!;
 
 	public static bool IsKaizoEnabled = false;
+	public static SynchronizationContext MainThreadContext;
 
 	public void Awake()
 	{
 		Logger = base.Logger;
 		Instance = this;
+		MainThreadContext = SynchronizationContext.Current;
 
 		SavePlayerStateAutoWatcher.BindConfigs(this);
 
@@ -45,13 +49,33 @@ public class Plugin : BaseUnityPlugin
 
 	internal static void PrintError(string message)
 	{
-		Con.con.LogToConsole($"<color=red>{ModName}: ERROR: {message}</color>");
-		Logger.LogError($"{message}");
+		try
+		{
+			Logger?.LogError($"{message}");
+			if (SynchronizationContext.Current != MainThreadContext)
+				MainThreadContext.Post(_ => Con.con?.LogToConsole($"<color=red>{ModName}: ERROR: {message}</color>"), null);
+			else
+				Con.con?.LogToConsole($"<color=red>{ModName}: ERROR: {message}</color>");
+		}
+		catch (Exception)
+		{
+			// ignored
+		}
 	}
 
 	internal static void PrintWarning(string message)
 	{
-		Con.con.LogToConsole($"<color=yellow>{ModName}: WARNING: {message}</color>");
-		Logger.LogWarning($"{message}");
+		try
+		{
+			Logger?.LogWarning($"{message}");
+			if (SynchronizationContext.Current != MainThreadContext)
+				MainThreadContext.Post(_ => Con.con?.LogToConsole($"<color=yellow>{ModName}: WARNING: {message}</color>"), null);
+			else
+				Con.con?.LogToConsole($"<color=yellow>{ModName}: WARNING: {message}</color>");
+		}
+		catch (Exception)
+		{
+			// ignored
+		}
 	}
 }

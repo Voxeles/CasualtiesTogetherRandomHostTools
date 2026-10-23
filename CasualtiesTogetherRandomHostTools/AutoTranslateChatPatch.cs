@@ -10,27 +10,44 @@ namespace CasualtiesTogetherRandomHostTools;
 
 internal static class ChatTranslate
 {
-	private static readonly object Lock = new();
-	
 	public static void Hijack(knetid clientId, NetDataReader reader)
 	{
 		if (!ScavPlayer.TryGetPlayerFromClientId(clientId, out var plr))
 			return;
 
-		reader.SetPosition(AutoTranslateChatPatch.OriginalReaderPos);
-		reader.Get(out bool _);
-		reader.Get(out bool _);
-		reader.Get(out knetid _);
-		reader.Get(out string message);
-		reader.SetPosition(AutoTranslateChatPatch.OriginalReaderPos);
+		var buf = new byte[reader.RawDataSize];
+		Array.Copy(reader.RawData, buf, reader.RawDataSize);
+		var originalReader = new NetDataReader(buf);
+		originalReader.SetPosition(AutoTranslateChatPatch.OriginalReaderPos);
+
+		string message;
+		try
+		{
+			int expectedEnd = reader.Position;
+			reader.SetPosition(AutoTranslateChatPatch.OriginalReaderPos);
+			reader.Get(out bool _);
+			reader.Get(out bool _);
+			reader.Get(out knetid _);
+			reader.Get(out message);
+
+			if (reader.Position != expectedEnd)
+				throw new Exception($"Chat message packet format changed: expected {expectedEnd}, extracted {reader.Position} - abort!");
+		}
+		catch (Exception ex)
+		{
+			Plugin.PrintError($"Hijack failed to extract message: {ex}");
+			originalReader.SetPosition(AutoTranslateChatPatch.OriginalReaderPos);
+			AutoTranslateChatPatch.OriginalMethod(clientId, originalReader);
+			return;
+		}
 
 		var autoTranslate = AutoTranslate.Instance;
 		if (KaizoAutoTranslate.ShouldTranslateNearSalad(autoTranslate, plr, out var saladDist))
-			Task.Run(() => KaizoAutoTranslate.DoTranslateNearSaladAsync(autoTranslate, plr, message, saladDist, reader));
+			Task.Run(() => KaizoAutoTranslate.DoTranslateNearSaladAsync(autoTranslate, plr, message, saladDist, originalReader));
 		else if (autoTranslate.ShouldTranslate(plr))
-			Task.Run(() => DoTranslateAsync(plr, message, reader));
+			Task.Run(() => DoTranslateAsync(plr, message, originalReader));
 		else
-			SendPlayerMessageRestored(plr, message, reader);
+			SendPlayerMessageRestored(plr, message, originalReader);
 	}
 
 	public static async Task DoTranslateAsync(ScavPlayer plr, string message, NetDataReader reader)
@@ -51,8 +68,7 @@ internal static class ChatTranslate
 		writer.Put(whisperTarget);
 		writer.Put(newMessage);
 
-		lock (Lock)
-			AutoTranslateChatPatch.OriginalMethod(plr.playerId, new NetDataReader(writer));
+		Plugin.MainThreadContext.Post(_ => AutoTranslateChatPatch.OriginalMethod(plr.playerId, new NetDataReader(writer)), null);
 	}
 }
 

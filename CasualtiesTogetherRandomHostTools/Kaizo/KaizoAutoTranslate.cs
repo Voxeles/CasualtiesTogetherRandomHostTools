@@ -2,7 +2,6 @@
 using LiteNetLib.Utils;
 using Together;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace CasualtiesTogetherRandomHostTools;
 
@@ -52,14 +51,17 @@ public static class KaizoAutoTranslate
     
     private static string TextScramble(string message, float chance)
     {
-        // Yes this corrupts the low and high surrogates, do I look like I care?
         var output = message.ToCharArray();
+
+        var rnd = new System.Random(); // Don't use Unity.Random. It cannot be used on a job thread.
+
         for (var i = 0; i < output.Length; i++)
         {
-            if (Random.value > chance)
+            if (rnd.NextDouble() > chance)
                 continue;
-            output[i] = message[Random.RandomRangeInt(0, message.Length)];
+            // Yes this corrupts the low and high surrogates, but idgaf
+            output[i] = message[rnd.Next(0, message.Length)];
         }
-        return string.Join("", output);
+        return new string(output);
     }
 }
