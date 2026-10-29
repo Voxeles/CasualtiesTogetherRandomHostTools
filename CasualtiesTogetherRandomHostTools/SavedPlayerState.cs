@@ -13,11 +13,6 @@ using Object = UnityEngine.Object;
 namespace CasualtiesTogetherRandomHostTools;
 
 // Issues:
-// - Mp mod has no way of syncing favourited items.
-// Save the favourited status, but don't restore it.
-// Otherwise, desync occurs where clients can't use their items for crafting, even though they have it unfavourited.
-// - Mp mod has no way of syncing crafted recipes.
-// Save and restore it. That way, INT xp for crafting is still awarded correctly, but the Client needs to remember what they crafted previously.
 // - Applying the health sync packet triggers side effects, like bleeding for amputated limbs
 // Ideally I'd use my own data structure for player data, or just aggregate all serializable fields in Body.cs and Limb.cs.
 // But I'm lazy, so instead I'll set any fields that have a side effect manually before applying the health packet to the body.
@@ -239,8 +234,7 @@ public sealed class SavedPlayerState
                     var gameObject = Object.Instantiate(Resources.Load(savedItem.id), body.transform.position + (Vector3)UnityEngine.Random.insideUnitCircle, Quaternion.identity) as GameObject;
                     item = gameObject.GetComponent<Item>();
                     item.condition = savedItem.condition;
-                    // Drop favourited info
-                    //item.favourited = savedItem.favourited;
+                    item.favourited = savedItem.favourited;
                 }
                 catch (Exception ex)
                 {
