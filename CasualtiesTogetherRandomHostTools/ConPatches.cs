@@ -32,9 +32,8 @@ internal static class ConPatches
                 case "true":
                     Plugin.IsKaizoEnabled = true;
                     // HACK: Workaround for a bug where the solar flare modifier persist after layer change
-                    // Force UnchippedIsIndividual to true
-                    // Multiplayer.rules.UnchippedIsIndividual = true;
-                    // Multiplayer.ApplyGameRules();
+                    Multiplayer.rules.UnchippedIsIndividual = true;
+                    Multiplayer.ApplyGameRules();
                     Con.con.LogToConsole("Enabled kaizo mode!");
                     break;
                 case "false":
@@ -97,6 +96,15 @@ internal static class ConPatches
             var name = args[1];
             var tag = args[2].Replace("_", " ");
             var message = string.Join(" ", args, 3, args.Length - 3);
+
+            foreach (ScavPlayer player in ScavPlayer.ClientIdToPlayerDict.Values)
+            {
+                if (name == player.playerName)
+                {
+                    name = $"<color={player.playerColor.ToHex()}>{player.playerName}</color>";
+                    break;
+                }
+            }
 
             Chat.Server_ChatAnnouncement(name, tag, message);
 

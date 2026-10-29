@@ -17,9 +17,9 @@ public static class CloneCommand
             if (CloneManager.IsRemoving)
                 throw new Exception("Clones are being removed - please wait!");
 
-            var host = ScavPlayer.GetLocalNetBodyNullable();
+            var host = NetBody.GetLocalNetBodyNullable();
             if (!host)
-                throw new Exception("You don't have a body!");
+                throw new Exception("Host doesn't have a body!");
 
             var pos = args.Length > 1
                 ? Con.con.ParsePosition(args[1])
@@ -53,9 +53,9 @@ public static class CloneCommand
             if (CloneManager.IsRemoving)
                 throw new Exception("Clones are being removed - please wait!");
 
-            var host = ScavPlayer.GetLocalNetBodyNullable();
+            var host = NetBody.GetLocalNetBodyNullable();
             if (!host)
-                throw new Exception("You don't have a body!");
+                throw new Exception("Host doesn't have a body!");
 
             CloneManager.ApplyCloneStateAll(host);
 
