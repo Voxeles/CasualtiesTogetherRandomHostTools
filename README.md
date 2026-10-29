@@ -47,13 +47,13 @@ Custom PvP map, falling off results in instant death.
 
 
 - `KaizoEnabled` \
-  Enable the Kaizo mode! \
-  Adds a new _fun_ gimmick for every layer: \
-  Layer 1: Corrupted world \
-  Layer 2: Melting \
-  Layer 3: Gunpowder rocks! \
-  Layer 4: Sound check \
-  Layer 5: Tower of Babel
+Enable the Kaizo mode! \
+Adds a new _fun_ gimmick for every layer: \
+Layer 1: Corrupted world \
+Layer 2: Melting \
+Layer 3: Gunpowder rocks! \
+Layer 4: Sound check \
+Layer 5: Tower of Babel
 
 
  - `ExplosionOverride` \
@@ -62,16 +62,23 @@ You don't have to fill every parameter, just press enter once you've set the one
 Leave the command parameters empty to disable it.
 
 
+- Host cloning \
+Use `SpawnClone` to spawn a clone that mimics your inputs.
+The clone starts with a copy of your inventory and health. \
+Remove all clones with `RemoveClones`. \
+Update their state to match yours with `UpdateClones`.
+
+
+- World management \
+Use `SaveWorldTiles` to save the world's tiles and fluids to a file. \
+Load via `LoadWorldTiles` \
+Caveat: It _only_ saves world tiles. Nothing else.
+
+
  - `AutoTranslate` \
 Automatically translates a chat messages for everyone.
 Finally, you can now turn the entire lobby Spanish if you want to. \
 Supports Google translate (default, free, may timeout) and the DeepL API (requires an account).
-
-
- - World management \
-Use `SaveWorldTiles` to save the world's tiles and fluids to a file. \
-Load via `LoadWorldTiles` \
-Caveat: It _only_ saves world tiles. Nothing else.
 
 
  - `SyncTimerOverride` \
@@ -80,13 +87,6 @@ Lower values sync data more often, increasing network load but decreasing desync
 Higher values decrease network load, but increase desync. \
 Use with caution. Mainly useful for changing the default fluid sync timer period, as it is abysmally slow with multiple players and causes fluids to suddenly pop-in.
 For example, Kaizo mode changes the fluid timer frequency on layer 2 to `0.15`
-
-
- - Host cloning \
-Use `SpawnClone` to spawn a clone that mimics your inputs.
-The clone starts with a copy of your inventory and health. \
-Remove all clones with `RemoveClones`. \
-Update their state to match yours with `UpdateClones`.
 
 
  - `NamedAnnouncement` \
